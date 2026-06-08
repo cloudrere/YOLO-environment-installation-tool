@@ -1,0 +1,6 @@
+# conda environments:
+#
+base                  *  E:\software\ADeepLearning\Anaconda
+ultralytics              E:\software\ADeepLearning\Anaconda\envs\ultralytics
+yolo                     E:\software\ADeepLearning\Anaconda\envs\yolo
+

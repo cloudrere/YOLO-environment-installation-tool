@@ -1,0 +1,19 @@
+{
+  "pip": [
+    {"name": "Tsinghua", "url": "https://pypi.tuna.tsinghua.edu.cn/simple"},
+    {"name": "Aliyun", "url": "https://mirrors.aliyun.com/pypi/simple"},
+    {"name": "USTC", "url": "https://pypi.mirrors.ustc.edu.cn/simple"}
+  ],
+  "conda_channels": [
+    "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main",
+    "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free",
+    "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge"
+  ],
+  "miniconda_installer": "https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Windows-x86_64.exe",
+  "github_proxies": [
+    "https://ghproxy.com/",
+    "https://gh-proxy.com/",
+    "https://hub.gitmirror.com/"
+  ]
+}
+

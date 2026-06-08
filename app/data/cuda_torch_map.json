@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "gpu": [
+    {
+      "cuda_max": "12.6",
+      "torch_index": "https://mirrors.tuna.tsinghua.edu.cn/pytorch-wheels/cu124",
+      "spec": ["torch==2.5.1", "torchvision==0.20.1", "torchaudio==2.5.1"]
+    },
+    {
+      "cuda_max": "12.1",
+      "torch_index": "https://mirrors.tuna.tsinghua.edu.cn/pytorch-wheels/cu121",
+      "spec": ["torch==2.4.1", "torchvision==0.19.1", "torchaudio==2.4.1"]
+    },
+    {
+      "cuda_max": "11.8",
+      "torch_index": "https://mirrors.tuna.tsinghua.edu.cn/pytorch-wheels/cu118",
+      "spec": ["torch==2.4.1", "torchvision==0.19.1", "torchaudio==2.4.1"]
+    }
+  ],
+  "cpu": {
+    "torch_index": "https://pypi.tuna.tsinghua.edu.cn/simple",
+    "spec": ["torch==2.4.1+cpu", "torchvision==0.19.1+cpu", "torchaudio==2.4.1+cpu"],
+    "extra_index": "https://download.pytorch.org/whl/cpu"
+  }
+}
+
