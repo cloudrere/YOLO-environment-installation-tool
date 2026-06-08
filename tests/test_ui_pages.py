@@ -38,6 +38,9 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     assert page.build_config()["weights"] == []
     assert page.start_button.isEnabled()
     assert page.model_cards == []
+    assert page.title_label.text() == "YOLO 环境安装配置"
+    assert "安装目录" in page.install_dir_label.text()
+    assert "安装目录" in page.summary_label.text()
 
     page.python_version_combo.setEditText("3.12")
     config = page.build_config()

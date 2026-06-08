@@ -2,7 +2,7 @@ QWidget {
   font-family: "Segoe UI", Arial, sans-serif;
   font-size: 13px;
   color: #172033;
-  background: #f6f7f9;
+  background: #f4f6f8;
 }
 
 QTabWidget::pane {
@@ -11,7 +11,7 @@ QTabWidget::pane {
 }
 
 QPushButton {
-  min-height: 34px;
+  min-height: 36px;
   padding: 6px 14px;
   border: 1px solid #9aa7b8;
   border-radius: 6px;
@@ -26,6 +26,63 @@ QPushButton:enabled:hover {
 QPushButton:disabled {
   color: #8a95a3;
   background: #eef1f5;
+}
+
+#selectPage {
+  background: #f4f6f8;
+}
+
+#selectTitleLabel {
+  font-size: 24px;
+  font-weight: 700;
+  color: #101828;
+}
+
+#selectSummaryLabel {
+  color: #475467;
+  font-size: 14px;
+}
+
+#environmentHintLabel {
+  padding: 10px 12px;
+  border: 1px solid #c7d7fe;
+  border-radius: 6px;
+  background: #eef4ff;
+  color: #1d4ed8;
+}
+
+#installConfigPanel {
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+#pathWarningLabel {
+  min-height: 28px;
+  padding: 8px 10px;
+  border: 1px solid #fed7aa;
+  border-radius: 6px;
+  color: #9a3412;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+#startInstallButton {
+  min-height: 40px;
+  padding: 8px 18px;
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+#startInstallButton:enabled:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+}
+
+#browseWorkspaceButton {
+  min-width: 82px;
 }
 
 #statusCard {
@@ -50,7 +107,11 @@ QPushButton:disabled {
 
 QLineEdit, QComboBox, QPlainTextEdit {
   border: 1px solid #c7ced9;
-  border-radius: 4px;
-  padding: 5px;
+  border-radius: 6px;
+  padding: 6px;
   background: #ffffff;
+}
+
+QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
+  border-color: #2563eb;
 }

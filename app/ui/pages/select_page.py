@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QFormLayout,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -27,6 +28,13 @@ class SelectPage(QWidget):
         super().__init__(parent)
         self.setObjectName("selectPage")
         self.model_cards: list = []
+        self.title_label = QLabel("YOLO 环境安装配置")
+        self.title_label.setObjectName("selectTitleLabel")
+        self.summary_label = QLabel("选择环境名称、Python 版本和安装目录；模型权重默认不下载。")
+        self.summary_label.setObjectName("selectSummaryLabel")
+        self.summary_label.setWordWrap(True)
+        self.install_dir_label = QLabel("安装目录")
+        self.install_dir_label.setObjectName("installDirLabel")
         self.env_name_edit = QLineEdit("yolo-env")
         self.env_name_edit.setObjectName("envNameEdit")
         self.python_version_combo = QComboBox()
@@ -37,14 +45,14 @@ class SelectPage(QWidget):
         self.workspace_edit.setObjectName("workspaceEdit")
         self.browse_workspace_button = QPushButton("浏览...")
         self.browse_workspace_button.setObjectName("browseWorkspaceButton")
-        self.path_warning_label = QLineEdit("")
+        self.path_warning_label = QLabel("")
         self.path_warning_label.setObjectName("pathWarningLabel")
-        self.path_warning_label.setReadOnly(True)
+        self.path_warning_label.setWordWrap(True)
         self.jupyter_check = QCheckBox(text.LABEL_INSTALL_JUPYTER)
         self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
         self.start_button = QPushButton(text.BUTTON_START)
         self.start_button.setObjectName("startInstallButton")
-        self.environment_hint_label = QLabel("此工具只安装 YOLO 运行环境，不默认下载模型权重。")
+        self.environment_hint_label = QLabel("安装目录建议放在 D/E 等非系统盘，路径尽量使用英文和数字。")
         self.environment_hint_label.setObjectName("environmentHintLabel")
         self.total_label = QLineEdit("模型权重：不下载")
         self.total_label.setReadOnly(True)
@@ -55,23 +63,35 @@ class SelectPage(QWidget):
         workspace_row.addWidget(self.browse_workspace_button)
         form.addRow(text.LABEL_ENVIRONMENT, self.env_name_edit)
         form.addRow("Python 版本", self.python_version_combo)
-        form.addRow(text.LABEL_WORKSPACE, workspace_row)
+        form.addRow(self.install_dir_label, workspace_row)
         form.addRow(text.LABEL_WARNING, self.path_warning_label)
         form.addRow("", self.jupyter_check)
         form.addRow("", self.shortcut_check)
+
+        config_panel = QFrame()
+        config_panel.setObjectName("installConfigPanel")
+        config_panel_layout = QVBoxLayout(config_panel)
+        config_panel_layout.setContentsMargins(18, 18, 18, 18)
+        config_panel_layout.setSpacing(12)
+        config_panel_layout.addLayout(form)
 
         footer = QHBoxLayout()
         footer.addWidget(self.total_label, 1)
         footer.addWidget(self.start_button)
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(28, 24, 28, 24)
+        layout.setSpacing(14)
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.summary_label)
         layout.addWidget(self.environment_hint_label)
-        layout.addLayout(form)
+        layout.addWidget(config_panel)
         layout.addLayout(footer)
 
         self.start_button.clicked.connect(lambda: self.install_requested.emit(self.build_config()))
         self.workspace_edit.textChanged.connect(lambda: self.validate_paths())
         self.browse_workspace_button.clicked.connect(self.choose_workspace_directory)
+        self.validate_paths()
 
     def selected_weights(self) -> list[str]:
         return []
