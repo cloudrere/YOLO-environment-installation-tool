@@ -130,4 +130,4 @@ def test_install_page_exposes_uninstall_button(qtbot):
 
     assert page.uninstall_env_edit.text() == "yolo-env"
     assert page.uninstall_button.text() == "卸载环境"
-    assert not page.uninstall_button.isEnabled()
+    assert page.uninstall_button.isEnabled()

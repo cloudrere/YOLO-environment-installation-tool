@@ -29,8 +29,7 @@ class InstallPage(QWidget):
         self.uninstall_env_edit.setPlaceholderText("输入要删除的环境名")
         self.uninstall_button = QPushButton(text.BUTTON_UNINSTALL)
         self.uninstall_button.setObjectName("uninstallEnvButton")
-        self.uninstall_button.setEnabled(False)
-        self._uninstall_available = False
+        self.uninstall_button.setEnabled(True)
         self.uninstall_env_edit.textChanged.connect(self._sync_uninstall_button)
 
         steps_panel = QFrame()
@@ -97,8 +96,7 @@ class InstallPage(QWidget):
         if message:
             self.append_log(message)
         self.try_button.setEnabled(ok)
-        self._uninstall_available = ok
         self._sync_uninstall_button()
 
     def _sync_uninstall_button(self) -> None:
-        self.uninstall_button.setEnabled(self._uninstall_available and bool(self.uninstall_env_edit.text().strip()))
+        self.uninstall_button.setEnabled(bool(self.uninstall_env_edit.text().strip()))

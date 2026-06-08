@@ -100,3 +100,18 @@ def test_main_window_uninstall_action_removes_env(qtbot, monkeypatch):
 
     assert calls == [("conda.exe", "custom-env")]
     assert "环境已卸载" in window.install_page.log_view.toPlainText()
+
+
+def test_main_window_uninstall_uses_detected_conda_without_install(qtbot, monkeypatch):
+    monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
+    calls = []
+    window = MainWindow(dry_run=True)
+    qtbot.addWidget(window)
+    window.run_detection()
+    window.install_page.uninstall_env_edit.setText("old-env")
+    monkeypatch.setattr("app.ui.main_window.remove_env", lambda conda, env: calls.append((conda, env)))
+
+    window.uninstall_environment()
+
+    assert calls == [("conda.exe", "old-env")]
+    assert "old-env" in window.install_page.log_view.toPlainText()

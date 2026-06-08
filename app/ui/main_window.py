@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from PyQt6.QtWidgets import QMainWindow, QTabWidget
 
+from app.core.errors import InstallError
 from app.core.cuda_matcher import choose
 from app.core.conda_manager import remove_env
 from app.core.detector import detect_all
@@ -84,5 +85,10 @@ class MainWindow(QMainWindow):
     def uninstall_environment(self) -> None:
         config = self.current_config
         env_name = self.install_page.uninstall_env_edit.text().strip() or config.get("env_name", "yolo-env")
-        remove_env(config.get("conda_exe", "conda"), env_name)
+        conda_exe = config.get("conda_exe") or (self.snapshot.conda.path if self.snapshot and self.snapshot.conda.path else "conda")
+        try:
+            remove_env(conda_exe, env_name)
+        except InstallError as exc:
+            self.install_page.append_log(f"卸载失败：{exc}")
+            return
         self.install_page.append_log(f"{text.ENV_REMOVED}：{env_name}")
