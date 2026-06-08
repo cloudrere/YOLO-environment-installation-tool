@@ -28,7 +28,7 @@ def main() -> int:
     parser.add_argument("--models", nargs="*", default=["yolov8:n"], help="Model specs such as yolov8:n")
     args = parser.parse_args()
 
-    if args.gui:
+    if args.gui or len(sys.argv) == 1:
         return run_gui(dry_run=args.dry_run)
 
     snapshot = detect_all()
