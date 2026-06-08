@@ -187,9 +187,18 @@ def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
     for name in ["weights", "jupyter", "smoke", "shortcut"]:
         monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
     monkeypatch.setattr(state, "save", lambda snapshot: None)
+    monkeypatch.setattr(pipeline, "python_package_exists", lambda python, package: True)
 
     pipe = pipeline.Pipeline(
-        {"skip_torch": True, "skip_ultralytics": True, "weights": [], "install_jupyter": False, "smoke_test": False, "make_shortcut": False},
+        {
+            "python_exe": "python.exe",
+            "skip_torch": True,
+            "skip_ultralytics": True,
+            "weights": [],
+            "install_jupyter": False,
+            "smoke_test": False,
+            "make_shortcut": False,
+        },
         lambda line: events.append(("line", line)),
         lambda step, status: events.append((step, status)),
         lambda ok, msg: events.append(("done", ok, msg)),
@@ -203,6 +212,53 @@ def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
     assert ("smoke", "skipped") in events
     assert ("shortcut", "skipped") in events
     assert ("done", True, "") in events
+
+
+def test_pipeline_fails_when_skipped_torch_is_missing(monkeypatch):
+    events = []
+    monkeypatch.setattr(pipeline.Pipeline, "_do_detect", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_conda", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_env", lambda self: setattr(self, "python_exe", "python.exe"))
+    monkeypatch.setattr(pipeline.state, "save", lambda snapshot: None)
+    monkeypatch.setattr(pipeline, "python_package_exists", lambda python, package: False)
+
+    pipe = pipeline.Pipeline(
+        {"skip_torch": True, "skip_ultralytics": True},
+        lambda line: events.append(("line", line)),
+        lambda step, status: events.append((step, status)),
+        lambda ok, msg: events.append(("done", ok, msg)),
+    )
+
+    pipe.run()
+
+    assert ("torch", "fail") in events
+    assert events[-1][0] == "done"
+    assert events[-1][1] is False
+    assert "torch" in events[-1][2]
+
+
+def test_pipeline_fails_when_skipped_ultralytics_is_missing(monkeypatch):
+    events = []
+    monkeypatch.setattr(pipeline.Pipeline, "_do_detect", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_conda", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_env", lambda self: setattr(self, "python_exe", "python.exe"))
+    monkeypatch.setattr(pipeline.Pipeline, "_do_torch", lambda self: None)
+    monkeypatch.setattr(pipeline.state, "save", lambda snapshot: None)
+    monkeypatch.setattr(pipeline, "python_package_exists", lambda python, package: package == "torch")
+
+    pipe = pipeline.Pipeline(
+        {"skip_ultralytics": True},
+        lambda line: events.append(("line", line)),
+        lambda step, status: events.append((step, status)),
+        lambda ok, msg: events.append(("done", ok, msg)),
+    )
+
+    pipe.run()
+
+    assert ("ultralytics", "fail") in events
+    assert events[-1][0] == "done"
+    assert events[-1][1] is False
+    assert "ultralytics" in events[-1][2]
 
 
 def test_pipeline_cancel_during_env_step_reports_canceled(monkeypatch, tmp_path):

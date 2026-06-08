@@ -3,15 +3,24 @@ from __future__ import annotations
 from datetime import datetime
 
 from app.core import conda_manager, cuda_matcher, detector, jupyter_installer, pip_installer, state, ultralytics_setup
+from app.core.errors import InstallError
 from app.core.state import InstallState
 from app.utils.paths import resource_path
-from app.utils.runner import CancelledCommand, CancelToken
+from app.utils.runner import CancelledCommand, CancelToken, run
 
 
 SHORTCUT_DEFERRED_MESSAGE = "快捷方式创建将在后续版本完善"
 
 
 SKIPPED_STATUS = "skipped"
+
+
+def python_package_exists(python_exe: str, package: str) -> bool:
+    script = (
+        "import importlib.util, sys; "
+        "sys.exit(0 if importlib.util.find_spec(sys.argv[1]) is not None else 1)"
+    )
+    return run([python_exe, "-c", script, package]).returncode == 0
 
 
 class Pipeline:
@@ -42,6 +51,7 @@ class Pipeline:
                     return
                 self._current = step
                 if self._should_skip(step):
+                    self._verify_skipped_step(step)
                     self.on_line(f"已跳过：{step}")
                     self.on_step(step, SKIPPED_STATUS)
                     self._finished_steps.append(step)
@@ -83,6 +93,17 @@ class Pipeline:
         if step == "shortcut":
             return not bool(self.config.get("make_shortcut", False))
         return False
+
+    def _verify_skipped_step(self, step: str) -> None:
+        package_by_step = {"torch": "torch", "ultralytics": "ultralytics"}
+        package = package_by_step.get(step)
+        if not package:
+            return
+        if not self.python_exe:
+            raise InstallError(f"跳过 {package} 安装前无法定位 Python 解释器")
+        if not python_package_exists(self.python_exe, package):
+            raise InstallError(f"已选择跳过 {package} 安装，但当前环境未检测到 {package}")
+        self.on_line(f"已检测到 {package}，跳过安装")
 
     def _do_detect(self) -> None:
         self.snapshot = detector.detect_all()
