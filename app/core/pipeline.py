@@ -11,6 +11,9 @@ from app.utils.runner import CancelledCommand, CancelToken
 SHORTCUT_DEFERRED_MESSAGE = "快捷方式创建将在后续版本完善"
 
 
+SKIPPED_STATUS = "skipped"
+
+
 class Pipeline:
     STEPS = ["detect", "conda", "env", "torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]
 
@@ -38,6 +41,12 @@ class Pipeline:
                     self.on_done(False, "canceled")
                     return
                 self._current = step
+                if self._should_skip(step):
+                    self.on_line(f"已跳过：{step}")
+                    self.on_step(step, SKIPPED_STATUS)
+                    self._finished_steps.append(step)
+                    state.save(self._snapshot())
+                    continue
                 self.on_step(step, "running")
                 getattr(self, f"_do_{step}")()
                 self.on_step(step, "ok")
@@ -59,6 +68,21 @@ class Pipeline:
             self.config,
             last_error,
         )
+
+    def _should_skip(self, step: str) -> bool:
+        if step == "torch":
+            return bool(self.config.get("skip_torch", False))
+        if step == "ultralytics":
+            return bool(self.config.get("skip_ultralytics", False))
+        if step == "weights":
+            return not bool(self.config.get("weights", []))
+        if step == "jupyter":
+            return not bool(self.config.get("install_jupyter", False))
+        if step == "smoke":
+            return not bool(self.config.get("smoke_test", False))
+        if step == "shortcut":
+            return not bool(self.config.get("make_shortcut", False))
+        return False
 
     def _do_detect(self) -> None:
         self.snapshot = detector.detect_all()

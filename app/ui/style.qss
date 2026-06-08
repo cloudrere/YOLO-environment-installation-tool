@@ -284,6 +284,14 @@ QLabel[stepStatus="ok"] {
   background: #f0fdf4;
 }
 
+QLabel[stepStatus="skipped"] {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: #475467;
+  background: #f8fafc;
+}
+
 QLabel[stepStatus="fail"] {
   padding: 10px 12px;
   border: 1px solid #fecaca;

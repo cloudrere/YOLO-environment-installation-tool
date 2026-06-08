@@ -65,6 +65,8 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
         "3.12",
     ]
     assert page.build_config()["weights"] == []
+    assert not page.skip_torch_check.isChecked()
+    assert not page.skip_ultralytics_check.isChecked()
     assert page.start_button.isEnabled()
     assert page.model_cards == []
     assert page.title_label.text() == "YOLO 环境安装配置"
@@ -79,6 +81,15 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     assert config["python_version"] == "3.12"
     assert config["workspace"] == str(tmp_path)
     assert config["conda_root"] == str(tmp_path)
+    assert config["skip_torch"] is False
+    assert config["skip_ultralytics"] is False
+
+    page.skip_torch_check.setChecked(True)
+    page.skip_ultralytics_check.setChecked(True)
+    skipped_config = page.build_config()
+
+    assert skipped_config["skip_torch"] is True
+    assert skipped_config["skip_ultralytics"] is True
 
 
 def test_select_page_uses_split_install_layout(qtbot):

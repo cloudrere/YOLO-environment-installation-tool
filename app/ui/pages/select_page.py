@@ -68,6 +68,10 @@ class SelectPage(QWidget):
         self.path_warning_label = QLabel("")
         self.path_warning_label.setObjectName("pathWarningLabel")
         self.path_warning_label.setWordWrap(True)
+        self.skip_torch_check = QCheckBox("跳过 PyTorch 安装")
+        self.skip_torch_check.setObjectName("skipTorchCheck")
+        self.skip_ultralytics_check = QCheckBox("跳过 Ultralytics 安装")
+        self.skip_ultralytics_check.setObjectName("skipUltralyticsCheck")
         self.jupyter_check = QCheckBox(text.LABEL_INSTALL_JUPYTER)
         self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
         self.start_button = QPushButton(text.BUTTON_START)
@@ -86,6 +90,8 @@ class SelectPage(QWidget):
         form.addRow("Python 版本", self.python_version_combo)
         form.addRow(self.install_dir_label, workspace_row)
         form.addRow(text.LABEL_WARNING, self.path_warning_label)
+        form.addRow("", self.skip_torch_check)
+        form.addRow("", self.skip_ultralytics_check)
         form.addRow("", self.jupyter_check)
         form.addRow("", self.shortcut_check)
 
@@ -136,6 +142,8 @@ class SelectPage(QWidget):
             "workspace": self.workspace_edit.text().strip(),
             "conda_root": self.workspace_edit.text().strip(),
             "weights": self.selected_weights(),
+            "skip_torch": self.skip_torch_check.isChecked(),
+            "skip_ultralytics": self.skip_ultralytics_check.isChecked(),
             "install_jupyter": self.jupyter_check.isChecked(),
             "make_shortcut": self.shortcut_check.isChecked(),
             "pip_mirror": "https://pypi.tuna.tsinghua.edu.cn/simple",

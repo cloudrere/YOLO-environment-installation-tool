@@ -13,7 +13,7 @@ def test_install_worker_dry_run_emits_steps(qtbot):
         worker.start()
 
     assert ("detect", "running") in steps
-    assert ("shortcut", "ok") in steps
+    assert ("shortcut", "skipped") in steps
     assert done == [(True, "")]
 
 

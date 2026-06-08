@@ -21,7 +21,11 @@ def test_pipeline_runs_steps_in_order_and_saves_state(monkeypatch, tmp_path):
     pipe.run()
 
     assert done == [(True, "")]
-    assert [item for item in events if item in pipeline.Pipeline.STEPS] == pipeline.Pipeline.STEPS
+    assert [item for item in events if item in pipeline.Pipeline.STEPS] == pipeline.Pipeline.STEPS[:5]
+    assert "weights:skipped" in events
+    assert "jupyter:skipped" in events
+    assert "smoke:skipped" in events
+    assert "shortcut:skipped" in events
     assert [snapshot.finished_steps[-1] for snapshot in saved] == pipeline.Pipeline.STEPS
 
 
@@ -167,6 +171,38 @@ def test_pipeline_disables_pip_fallback_for_gpu_torch_plan(monkeypatch):
     pipe._do_torch()
 
     assert calls[0][1]["allow_fallback_indexes"] is False
+
+
+def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
+    events = []
+    monkeypatch.setattr(pipeline.Pipeline, "_do_detect", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_conda", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_env", lambda self: None)
+    monkeypatch.setattr(pipeline.Pipeline, "_do_torch", lambda self: (_ for _ in ()).throw(AssertionError("torch should be skipped")))
+    monkeypatch.setattr(
+        pipeline.Pipeline,
+        "_do_ultralytics",
+        lambda self: (_ for _ in ()).throw(AssertionError("ultralytics should be skipped")),
+    )
+    for name in ["weights", "jupyter", "smoke", "shortcut"]:
+        monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
+    monkeypatch.setattr(state, "save", lambda snapshot: None)
+
+    pipe = pipeline.Pipeline(
+        {"skip_torch": True, "skip_ultralytics": True, "weights": [], "install_jupyter": False, "smoke_test": False, "make_shortcut": False},
+        lambda line: events.append(("line", line)),
+        lambda step, status: events.append((step, status)),
+        lambda ok, msg: events.append(("done", ok, msg)),
+    )
+
+    pipe.run()
+
+    assert ("torch", "skipped") in events
+    assert ("ultralytics", "skipped") in events
+    assert ("jupyter", "skipped") in events
+    assert ("smoke", "skipped") in events
+    assert ("shortcut", "skipped") in events
+    assert ("done", True, "") in events
 
 
 def test_pipeline_cancel_during_env_step_reports_canceled(monkeypatch, tmp_path):
