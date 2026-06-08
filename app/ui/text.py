@@ -1,7 +1,7 @@
 APP_TITLE = "YOLO 环境安装工具"
 
 TAB_ENVIRONMENT = "环境检测"
-TAB_MODELS = "模型选择"
+TAB_INSTALL_CONFIG = "安装配置"
 TAB_INSTALL = "安装进度"
 
 STATUS_NOT_CHECKED = "未检测"
@@ -17,7 +17,6 @@ BUTTON_DETECT = "开始检测"
 BUTTON_NEXT = "下一步"
 BUTTON_START = "开始安装"
 BUTTON_CANCEL = "取消"
-BUTTON_TRY = "运行自检"
 BUTTON_UNINSTALL = "卸载环境"
 
 LABEL_OS = "系统"
@@ -25,7 +24,6 @@ LABEL_CONDA = "Conda"
 LABEL_GPU = "显卡"
 LABEL_DISK = "磁盘"
 LABEL_SCALE = "规格"
-LABEL_WEIGHT = "权重"
 LABEL_ENVIRONMENT = "环境名称"
 LABEL_WORKSPACE = "工作目录"
 LABEL_WARNING = "提示"
@@ -40,9 +38,7 @@ STEP_NAMES = {
     "env": "创建环境",
     "torch": "安装 PyTorch",
     "ultralytics": "安装 Ultralytics",
-    "weights": "下载权重",
     "jupyter": "安装 Jupyter",
-    "smoke": "自检推理",
     "shortcut": "快捷方式",
 }
 
@@ -53,6 +49,4 @@ STEP_STATUS = {
     "fail": "失败",
 }
 
-PREVIEW_OK = "预览成功"
-PREVIEW_FAILED = "预览失败"
 ENV_REMOVED = "环境已卸载"

@@ -169,11 +169,6 @@ QLabel {
   min-width: 82px;
 }
 
-#weightStatusLine {
-  color: #475467;
-  background: #f8fafc;
-}
-
 #statusCard {
   border: 1px solid #d8dde6;
   border-radius: 8px;
@@ -219,18 +214,18 @@ QProgressBar::chunk {
   background: #2563eb;
 }
 
-#detectButton, #installCondaButton, #detectNextButton, #cancelInstallButton, #tryPreviewButton, #uninstallEnvButton {
+#detectButton, #installCondaButton, #detectNextButton, #cancelInstallButton, #uninstallEnvButton {
   min-width: 120px;
 }
 
-#detectButton, #installCondaButton, #tryPreviewButton {
+#detectButton, #installCondaButton {
   border-color: #2563eb;
   background: #2563eb;
   color: #ffffff;
   font-weight: 700;
 }
 
-#detectButton:enabled:hover, #installCondaButton:enabled:hover, #tryPreviewButton:enabled:hover {
+#detectButton:enabled:hover, #installCondaButton:enabled:hover {
   border-color: #1d4ed8;
   background: #1d4ed8;
 }

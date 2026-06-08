@@ -7,7 +7,6 @@ import sys
 from app.core.cuda_matcher import choose
 from app.core.detector import detect_all
 from app.core.pipeline import Pipeline
-from app.core.ultralytics_setup import weights_from_model_ids
 
 
 def run_gui(*, dry_run: bool) -> int:
@@ -25,7 +24,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="YOLO installer M1 CLI")
     parser.add_argument("--gui", action="store_true", help="Launch the PyQt6 desktop interface")
     parser.add_argument("--dry-run", action="store_true", help="Run pipeline callbacks without installing")
-    parser.add_argument("--models", nargs="*", default=["yolov8:n"], help="Model specs such as yolov8:n")
     args = parser.parse_args()
 
     if args.gui or len(sys.argv) == 1:
@@ -40,7 +38,6 @@ def main() -> int:
         config = {
             "python_exe": "python",
             "conda_exe": "conda",
-            "weights": weights_from_model_ids(args.models),
             "torch_plan": plan.__dict__,
             "install_jupyter": False,
             "make_shortcut": False,

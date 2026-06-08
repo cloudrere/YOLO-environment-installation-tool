@@ -27,12 +27,11 @@ class SelectPage(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("selectPage")
-        self.model_cards: list = []
         self.side_panel = QFrame()
         self.side_panel.setObjectName("selectSidePanel")
         self.side_title_label = QLabel("YOLO 环境工具")
         self.side_title_label.setObjectName("selectSideTitle")
-        self.side_description_label = QLabel("专注安装可用环境，不强制下载模型权重。")
+        self.side_description_label = QLabel("专注安装可用的 YOLO Python 环境。")
         self.side_description_label.setObjectName("selectSideDescription")
         self.side_description_label.setWordWrap(True)
         self.side_steps_label = QLabel(
@@ -43,14 +42,14 @@ class SelectPage(QWidget):
         )
         self.side_steps_label.setObjectName("selectSideSteps")
         self.side_steps_label.setWordWrap(True)
-        self.side_tip_label = QLabel("推荐：非 C 盘安装")
+        self.side_tip_label = QLabel("推荐：不要安装到 C 盘")
         self.side_tip_label.setObjectName("selectSideTip")
 
         self.title_label = QLabel("YOLO 环境安装配置")
         self.title_label.setObjectName("selectTitleLabel")
         self.panel_title_label = QLabel("Conda 根目录与环境参数")
         self.panel_title_label.setObjectName("selectPanelTitle")
-        self.summary_label = QLabel("选择环境名称、Python 版本和 Conda 根目录；模型权重默认不下载。")
+        self.summary_label = QLabel("选择环境名称、Python 版本和 Conda 根目录。")
         self.summary_label.setObjectName("selectSummaryLabel")
         self.summary_label.setWordWrap(True)
         self.install_dir_label = QLabel("Conda 根目录")
@@ -78,9 +77,6 @@ class SelectPage(QWidget):
         self.start_button.setObjectName("startInstallButton")
         self.environment_hint_label = QLabel("Conda 根目录用于创建和删除环境，建议使用已检测到的 Anaconda/Miniconda 根目录。")
         self.environment_hint_label.setObjectName("environmentHintLabel")
-        self.total_label = QLineEdit("模型权重：不下载")
-        self.total_label.setObjectName("weightStatusLine")
-        self.total_label.setReadOnly(True)
 
         form = QFormLayout()
         workspace_row = QHBoxLayout()
@@ -105,7 +101,6 @@ class SelectPage(QWidget):
         config_panel_layout.addWidget(self.environment_hint_label)
         config_panel_layout.addLayout(form)
         config_panel_layout.addStretch(1)
-        config_panel_layout.addWidget(self.total_label)
         config_panel_layout.addWidget(self.start_button)
 
         side_layout = QVBoxLayout(self.side_panel)
@@ -129,19 +124,12 @@ class SelectPage(QWidget):
         self.browse_workspace_button.clicked.connect(self.choose_workspace_directory)
         self.validate_paths()
 
-    def selected_weights(self) -> list[str]:
-        return []
-
-    def select_weight(self, weight: str) -> None:
-        return
-
     def build_config(self) -> dict:
         return {
             "env_name": self.env_name_edit.text().strip() or "yolo-env",
             "python_version": self.python_version_combo.currentText().strip() or "3.10",
             "workspace": self.workspace_edit.text().strip(),
             "conda_root": self.workspace_edit.text().strip(),
-            "weights": self.selected_weights(),
             "skip_torch": self.skip_torch_check.isChecked(),
             "skip_ultralytics": self.skip_ultralytics_check.isChecked(),
             "install_jupyter": self.jupyter_check.isChecked(),

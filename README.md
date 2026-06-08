@@ -13,7 +13,7 @@ E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe -m pytest -v
 Run a dry pipeline:
 
 ```powershell
-E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe main.py --dry-run --models yolov8n
+E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe main.py --dry-run
 ```
 
 Launch the desktop UI in safe dry-run mode:
@@ -26,7 +26,7 @@ E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe main.py --gui --d
 
 - Non-ASCII install/workspace paths are blocked in the GUI with a fallback suggestion: `C:\YoloInstaller\miniconda3`.
 - Pip installs retry through configured fallback mirrors from `app/data/mirrors.json`.
-- The install page exposes preview and uninstall actions after a successful run.
+- The install page exposes environment uninstall actions.
 - Resumable install state is stored under the user profile by `app.core.state`.
 
 ## Release build
@@ -42,6 +42,6 @@ Expected outputs:
 - `dist\YoloInstaller.exe`
 - `dist\YoloInstaller.exe.sha256`
 
-Before publishing, run the manual clean-machine gates from the implementation plan: one fresh Windows machine with NVIDIA GPU, one fresh Windows machine without NVIDIA GPU, and record the smoke-test result image.
+Before publishing, run the manual clean-machine gates from the implementation plan: one fresh Windows machine with NVIDIA GPU and one fresh Windows machine without NVIDIA GPU.
 
 The current development build excludes torch/ultralytics runtime packages from the installer executable. The executable installs and calls those packages inside the target conda environment instead. If PyInstaller reports optional missing DLL warnings, verify the built executable on a clean machine before publishing.

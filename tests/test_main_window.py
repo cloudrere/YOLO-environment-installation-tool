@@ -28,18 +28,19 @@ def fake_snapshot():
     )
 
 
-def test_main_window_has_three_pages(qtbot, monkeypatch):
+def test_main_window_has_environment_config_and_install_pages(qtbot, monkeypatch):
     monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
     window = MainWindow(dry_run=True)
     qtbot.addWidget(window)
 
     assert window.tabs.count() == 3
     assert window.tabs.tabText(0) == "环境检测"
-    assert window.tabs.tabText(1) == "模型选择"
+    assert window.tabs.tabText(1) == "安装配置"
+    assert window.tabs.tabText(2) == "安装进度"
     assert window.tabs.tabText(2) == "安装进度"
 
 
-def test_main_window_detect_next_moves_to_models(qtbot, monkeypatch):
+def test_main_window_detect_next_moves_to_install_config(qtbot, monkeypatch):
     monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
     window = MainWindow(dry_run=True)
     qtbot.addWidget(window)
@@ -139,25 +140,6 @@ def test_main_window_installs_miniconda_in_worker_and_uses_returned_conda(qtbot,
     assert "Miniconda 安装完成" in window.install_page.log_view.toPlainText()
 
 
-def test_main_window_preview_action_logs_result(qtbot, monkeypatch):
-    monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
-    calls = []
-    window = MainWindow(dry_run=True)
-    qtbot.addWidget(window)
-    window.current_config = {
-        "python_exe": "python.exe",
-        "weights": ["yolov8n.pt"],
-        "smoke_image": "bus.jpg",
-        "smoke_output": "result.jpg",
-    }
-    monkeypatch.setattr("app.ui.main_window.smoke_test", lambda *args: calls.append(args) or True)
-
-    window.run_preview()
-
-    assert calls
-    assert "预览成功" in window.install_page.log_view.toPlainText()
-
-
 def test_main_window_uses_detected_conda_and_allows_env_creation(qtbot, monkeypatch):
     monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
     started = []
@@ -182,7 +164,7 @@ def test_main_window_uses_detected_conda_and_allows_env_creation(qtbot, monkeypa
     qtbot.addWidget(window)
     window.run_detection()
 
-    window.start_install({"env_name": "demo", "python_version": "3.12", "weights": []})
+    window.start_install({"env_name": "demo", "python_version": "3.12"})
 
     assert started[0]["conda_exe"] == "conda.exe"
     assert "python_exe" not in started[0]

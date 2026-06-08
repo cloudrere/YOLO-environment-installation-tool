@@ -7,7 +7,6 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QTabWidget
 from app.core.conda_manager import conda_root_from_executable
 from app.core.cuda_matcher import choose
 from app.core.detector import CondaInfo, EnvSnapshot, detect_all
-from app.core.ultralytics_setup import smoke_test
 from app.core.validation import ASCII_INSTALL_DIR
 from app.ui import text
 from app.ui.pages.detect_page import DetectPage
@@ -35,7 +34,7 @@ class MainWindow(QMainWindow):
         self.select_page = SelectPage()
         self.install_page = InstallPage()
         self.tabs.addTab(self.detect_page, text.TAB_ENVIRONMENT)
-        self.tabs.addTab(self.select_page, text.TAB_MODELS)
+        self.tabs.addTab(self.select_page, text.TAB_INSTALL_CONFIG)
         self.tabs.addTab(self.install_page, text.TAB_INSTALL)
         self.setCentralWidget(self.tabs)
 
@@ -44,7 +43,6 @@ class MainWindow(QMainWindow):
         self.detect_page.next_requested.connect(lambda: self.tabs.setCurrentWidget(self.select_page))
         self.select_page.install_requested.connect(self.start_install)
         self.install_page.cancel_button.clicked.connect(self.cancel_install)
-        self.install_page.try_button.clicked.connect(self.run_preview)
         self.install_page.uninstall_button.clicked.connect(self.uninstall_environment)
         self._load_style()
 
@@ -117,17 +115,6 @@ class MainWindow(QMainWindow):
     def cancel_install(self) -> None:
         if self.worker is not None:
             self.worker.cancel()
-
-    def run_preview(self) -> None:
-        config = self.current_config
-        weights = config.get("weights") or ["yolov8n.pt"]
-        ok = smoke_test(
-            config.get("python_exe", "python"),
-            weights[0],
-            config.get("smoke_image", "assets/bus.jpg"),
-            config.get("smoke_output", "result.jpg"),
-        )
-        self.install_page.append_log(text.PREVIEW_OK if ok else text.PREVIEW_FAILED)
 
     def uninstall_environment(self) -> None:
         config = self.current_config

@@ -24,7 +24,7 @@ def python_package_exists(python_exe: str, package: str) -> bool:
 
 
 class Pipeline:
-    STEPS = ["detect", "conda", "env", "torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]
+    STEPS = ["detect", "conda", "env", "torch", "ultralytics", "jupyter", "shortcut"]
 
     def __init__(self, config: dict, on_line, on_step, on_done):
         self.config = config
@@ -84,12 +84,8 @@ class Pipeline:
             return bool(self.config.get("skip_torch", False))
         if step == "ultralytics":
             return bool(self.config.get("skip_ultralytics", False))
-        if step == "weights":
-            return not bool(self.config.get("weights", []))
         if step == "jupyter":
             return not bool(self.config.get("install_jupyter", False))
-        if step == "smoke":
-            return not bool(self.config.get("smoke_test", False))
         if step == "shortcut":
             return not bool(self.config.get("make_shortcut", False))
         return False
@@ -146,17 +142,6 @@ class Pipeline:
     def _do_ultralytics(self) -> None:
         ultralytics_setup.install_ultralytics(self.python_exe, self.on_line, cancel_token=self.cancel_token)
 
-    def _do_weights(self) -> None:
-        weights = self.config.get("weights", [])
-        if weights:
-            ultralytics_setup.predownload_weights(
-                self.python_exe,
-                weights,
-                self.config.get("weight_dir", self.config.get("workspace", ".")),
-                self.on_line,
-                cancel_token=self.cancel_token,
-            )
-
     def _do_jupyter(self) -> None:
         if self.config.get("install_jupyter", False):
             jupyter_installer.install_jupyter(
@@ -164,15 +149,6 @@ class Pipeline:
                 index_url=self.config.get("pip_mirror", "https://pypi.tuna.tsinghua.edu.cn/simple"),
                 on_line=self.on_line,
                 cancel_token=self.cancel_token,
-            )
-
-    def _do_smoke(self) -> None:
-        if self.config.get("smoke_test", False):
-            ultralytics_setup.smoke_test(
-                self.python_exe,
-                self.config["weights"][0],
-                self.config["smoke_image"],
-                self.config["smoke_output"],
             )
 
     def _do_shortcut(self) -> None:

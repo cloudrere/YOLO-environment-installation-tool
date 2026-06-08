@@ -3,7 +3,7 @@ from app.ui.workers import InstallWorker, MinicondaInstallWorker, RemoveEnvWorke
 
 
 def test_install_worker_dry_run_emits_steps(qtbot):
-    worker = InstallWorker({"weights": ["yolov8n.pt"]}, dry_run=True)
+    worker = InstallWorker({}, dry_run=True)
     steps = []
     done = []
     worker.step_changed.connect(lambda step, status: steps.append((step, status)))

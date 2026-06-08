@@ -29,9 +29,6 @@ class InstallPage(QWidget):
         self.conda_progress.hide()
         self.cancel_button = QPushButton(text.BUTTON_CANCEL)
         self.cancel_button.setObjectName("cancelInstallButton")
-        self.try_button = QPushButton(text.BUTTON_TRY)
-        self.try_button.setObjectName("tryPreviewButton")
-        self.try_button.setEnabled(False)
         self.uninstall_env_edit = QLineEdit("yolo-env")
         self.uninstall_env_edit.setObjectName("uninstallEnvEdit")
         self.uninstall_env_edit.setPlaceholderText("输入要删除的环境名")
@@ -78,7 +75,6 @@ class InstallPage(QWidget):
         actions = QHBoxLayout()
         actions.addWidget(self.cancel_button)
         actions.addStretch(1)
-        actions.addWidget(self.try_button)
 
         uninstall_panel = QFrame()
         uninstall_panel.setObjectName("uninstallPanel")
@@ -111,7 +107,6 @@ class InstallPage(QWidget):
     def set_finished(self, ok: bool, message: str) -> None:
         if message:
             self.append_log(message)
-        self.try_button.setEnabled(ok)
         if ok:
             self.install_progress.setValue(100)
         self._sync_uninstall_button()

@@ -22,9 +22,7 @@ def test_pipeline_runs_steps_in_order_and_saves_state(monkeypatch, tmp_path):
 
     assert done == [(True, "")]
     assert [item for item in events if item in pipeline.Pipeline.STEPS] == pipeline.Pipeline.STEPS[:5]
-    assert "weights:skipped" in events
     assert "jupyter:skipped" in events
-    assert "smoke:skipped" in events
     assert "shortcut:skipped" in events
     assert [snapshot.finished_steps[-1] for snapshot in saved] == pipeline.Pipeline.STEPS
 
@@ -86,7 +84,7 @@ def test_pipeline_uses_conda_from_detection_before_creating_env(monkeypatch, tmp
         "create_env",
         lambda conda, env, py, on_line=None, cancel_token=None: created.append((conda, env, py)) or r"D:\Anaconda\envs\demo\python.exe",
     )
-    for name in ["torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]:
+    for name in ["torch", "ultralytics", "jupyter", "shortcut"]:
         monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
     monkeypatch.setattr(state, "STATE_PATH", tmp_path / "state.json")
 
@@ -130,7 +128,7 @@ def test_pipeline_installs_miniconda_from_conda_root_when_no_conda_exists(monkey
         "create_env",
         lambda conda, env, py, on_line=None, cancel_token=None: str(conda_root / "envs" / env / "python.exe"),
     )
-    for name in ["torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]:
+    for name in ["torch", "ultralytics", "jupyter", "shortcut"]:
         monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
     monkeypatch.setattr(state, "STATE_PATH", tmp_path / "state.json")
 
@@ -184,7 +182,7 @@ def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
         "_do_ultralytics",
         lambda self: (_ for _ in ()).throw(AssertionError("ultralytics should be skipped")),
     )
-    for name in ["weights", "jupyter", "smoke", "shortcut"]:
+    for name in ["jupyter", "shortcut"]:
         monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
     monkeypatch.setattr(state, "save", lambda snapshot: None)
     monkeypatch.setattr(pipeline, "python_package_exists", lambda python, package: True)
@@ -194,9 +192,7 @@ def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
             "python_exe": "python.exe",
             "skip_torch": True,
             "skip_ultralytics": True,
-            "weights": [],
             "install_jupyter": False,
-            "smoke_test": False,
             "make_shortcut": False,
         },
         lambda line: events.append(("line", line)),
@@ -209,7 +205,6 @@ def test_pipeline_marks_configured_steps_as_skipped(monkeypatch):
     assert ("torch", "skipped") in events
     assert ("ultralytics", "skipped") in events
     assert ("jupyter", "skipped") in events
-    assert ("smoke", "skipped") in events
     assert ("shortcut", "skipped") in events
     assert ("done", True, "") in events
 
@@ -223,7 +218,7 @@ def test_pipeline_continues_when_torch_and_ultralytics_are_both_skipped(monkeypa
     monkeypatch.setattr(pipeline, "python_package_exists", lambda python, package: False)
 
     pipe = pipeline.Pipeline(
-        {"skip_torch": True, "skip_ultralytics": True, "weights": [], "install_jupyter": False, "smoke_test": False, "make_shortcut": False},
+        {"skip_torch": True, "skip_ultralytics": True, "install_jupyter": False, "make_shortcut": False},
         lambda line: events.append(("line", line)),
         lambda step, status: events.append((step, status)),
         lambda ok, msg: events.append(("done", ok, msg)),
