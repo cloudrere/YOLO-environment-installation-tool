@@ -16,6 +16,7 @@ def pip_install(
     extra_index_url: str | None = None,
     retries: int = 3,
     on_line=None,
+    cancel_token=None,
     mirrors_path: str = "app/data/mirrors.json",
 ) -> None:
     last_output = ""
@@ -26,7 +27,7 @@ def pip_install(
         if extra_index_url:
             cmd.extend(["--extra-index-url", extra_index_url])
         cmd.extend(specs)
-        result = run(cmd, on_line=on_line)
+        result = run(cmd, on_line=on_line, cancel_token=cancel_token)
         last_output = result.stdout
         if result.returncode == 0:
             return

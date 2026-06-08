@@ -11,16 +11,17 @@ def test_env_python_builds_windows_env_path():
 
 def test_create_env_runs_conda_create(monkeypatch):
     calls = []
+    token = object()
 
     def fake_run(cmd, **kwargs):
-        calls.append(cmd)
+        calls.append((cmd, kwargs))
         return CommandResult(0, "ok", 0)
 
     monkeypatch.setattr(conda_manager, "run", fake_run)
 
-    python = conda_manager.create_env(r"C:\Anaconda\Scripts\conda.exe", "yolo-env", "3.11")
+    python = conda_manager.create_env(r"C:\Anaconda\Scripts\conda.exe", "yolo-env", "3.11", cancel_token=token)
 
-    assert calls[0] == [
+    assert calls[0][0] == [
         r"C:\Anaconda\Scripts\conda.exe",
         "create",
         "-y",
@@ -28,6 +29,7 @@ def test_create_env_runs_conda_create(monkeypatch):
         "yolo-env",
         "python=3.11",
     ]
+    assert calls[0][1]["cancel_token"] is token
     assert python == r"C:\Anaconda\envs\yolo-env\python.exe"
 
 

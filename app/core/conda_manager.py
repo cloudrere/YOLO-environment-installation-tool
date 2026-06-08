@@ -31,10 +31,11 @@ def env_python(conda_exe: str, env_name: str) -> str:
     return str(root / "envs" / env_name / "python.exe")
 
 
-def create_env(conda_exe: str, env_name: str, python_version: str = "3.10", on_line=None) -> str:
+def create_env(conda_exe: str, env_name: str, python_version: str = "3.10", on_line=None, cancel_token=None) -> str:
     result = run(
         [conda_exe, "create", "-y", "-n", env_name, f"python={python_version}"],
         on_line=on_line,
+        cancel_token=cancel_token,
     )
     if result.returncode != 0:
         raise InstallError(result.stdout)

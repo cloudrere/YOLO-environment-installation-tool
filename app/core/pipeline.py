@@ -5,6 +5,7 @@ from datetime import datetime
 from app.core import conda_manager, cuda_matcher, detector, jupyter_installer, pip_installer, state, ultralytics_setup
 from app.core.state import InstallState
 from app.utils.paths import resource_path
+from app.utils.runner import CancelledCommand, CancelToken
 
 
 SHORTCUT_DEFERRED_MESSAGE = "快捷方式创建将在后续版本完善"
@@ -21,12 +22,14 @@ class Pipeline:
         self._cancelled = False
         self._finished_steps: list[str] = []
         self._current = ""
+        self.cancel_token = CancelToken()
         self.snapshot = None
         self.conda_exe = None
         self.python_exe = config.get("python_exe")
 
     def cancel(self) -> None:
         self._cancelled = True
+        self.cancel_token.cancel()
 
     def run(self) -> None:
         try:
@@ -41,6 +44,8 @@ class Pipeline:
                 self._finished_steps.append(step)
                 state.save(self._snapshot())
             self.on_done(True, "")
+        except CancelledCommand:
+            self.on_done(False, "canceled")
         except Exception as exc:
             if self._current:
                 self.on_step(self._current, "fail")
@@ -72,6 +77,7 @@ class Pipeline:
                 self.config.get("env_name", "yolo-env"),
                 self.config.get("python_version", "3.10"),
                 self.on_line,
+                cancel_token=self.cancel_token,
             )
 
     def _do_torch(self) -> None:
@@ -82,10 +88,11 @@ class Pipeline:
             index_url=plan["index_url"],
             extra_index_url=plan.get("extra_index_url"),
             on_line=self.on_line,
+            cancel_token=self.cancel_token,
         )
 
     def _do_ultralytics(self) -> None:
-        ultralytics_setup.install_ultralytics(self.python_exe, self.on_line)
+        ultralytics_setup.install_ultralytics(self.python_exe, self.on_line, cancel_token=self.cancel_token)
 
     def _do_weights(self) -> None:
         weights = self.config.get("weights", [])
@@ -95,6 +102,7 @@ class Pipeline:
                 weights,
                 self.config.get("weight_dir", self.config.get("workspace", ".")),
                 self.on_line,
+                cancel_token=self.cancel_token,
             )
 
     def _do_jupyter(self) -> None:
@@ -103,6 +111,7 @@ class Pipeline:
                 self.python_exe,
                 index_url=self.config.get("pip_mirror", "https://pypi.tuna.tsinghua.edu.cn/simple"),
                 on_line=self.on_line,
+                cancel_token=self.cancel_token,
             )
 
     def _do_smoke(self) -> None:

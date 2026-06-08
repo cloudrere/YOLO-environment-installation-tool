@@ -37,12 +37,13 @@ print('OK', sys.argv[3])
 """.strip()
 
 
-def install_ultralytics(python_exe: str, on_line=None) -> None:
+def install_ultralytics(python_exe: str, on_line=None, cancel_token=None) -> None:
     pip_install(
         python_exe,
         ["ultralytics>=8.3,<9"],
         index_url="https://pypi.tuna.tsinghua.edu.cn/simple",
         on_line=on_line,
+        cancel_token=cancel_token,
     )
 
 
@@ -51,6 +52,7 @@ def predownload_weights(
     weights: list[str],
     weight_dir: str,
     on_line=None,
+    cancel_token=None,
 ) -> dict[str, str]:
     Path(weight_dir).mkdir(parents=True, exist_ok=True)
     out: dict[str, str] = {}
@@ -59,6 +61,7 @@ def predownload_weights(
             [python_exe, "-c", PREDOWNLOAD_SCRIPT, weight],
             env={"YOLO_CONFIG_DIR": weight_dir},
             on_line=on_line,
+            cancel_token=cancel_token,
         )
         if result.returncode != 0:
             raise InstallError(f"weight download failed: {weight}")

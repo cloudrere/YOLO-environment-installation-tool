@@ -1,9 +1,11 @@
 import subprocess
 import sys
+import threading
+import time
 
 import pytest
 
-from app.utils.runner import run
+from app.utils.runner import CancelledCommand, CancelToken, run
 
 
 def test_run_captures_output_and_return_code():
@@ -30,3 +32,19 @@ def test_run_rejects_string_commands():
 def test_run_raises_timeout():
     with pytest.raises(subprocess.TimeoutExpired):
         run([sys.executable, "-c", "import time; time.sleep(2)"], timeout=0.1)
+
+
+def test_run_can_cancel_running_process():
+    token = CancelToken()
+
+    def cancel_soon():
+        time.sleep(0.1)
+        token.cancel()
+
+    threading.Thread(target=cancel_soon, daemon=True).start()
+
+    started = time.monotonic()
+    with pytest.raises(CancelledCommand):
+        run([sys.executable, "-c", "import time; time.sleep(5)"], cancel_token=token)
+
+    assert time.monotonic() - started < 2

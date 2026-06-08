@@ -1,5 +1,6 @@
 from app.core import pipeline, state
 from app.core.detector import CondaInfo, EnvSnapshot, GpuInfo
+from app.utils.runner import CancelledCommand
 
 
 def test_pipeline_runs_steps_in_order_and_saves_state(monkeypatch, tmp_path):
@@ -79,7 +80,7 @@ def test_pipeline_uses_conda_from_detection_before_creating_env(monkeypatch, tmp
     monkeypatch.setattr(
         pipeline.conda_manager,
         "create_env",
-        lambda conda, env, py, on_line=None: created.append((conda, env, py)) or r"D:\Anaconda\envs\demo\python.exe",
+        lambda conda, env, py, on_line=None, cancel_token=None: created.append((conda, env, py)) or r"D:\Anaconda\envs\demo\python.exe",
     )
     for name in ["torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]:
         monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
@@ -97,3 +98,38 @@ def test_pipeline_uses_conda_from_detection_before_creating_env(monkeypatch, tmp
 
     assert created == [(r"D:\Anaconda\Scripts\conda.exe", "demo", "3.12")]
     assert done == [(True, "")]
+
+
+def test_pipeline_cancel_during_env_step_reports_canceled(monkeypatch, tmp_path):
+    snapshot = EnvSnapshot(
+        os="Windows 11",
+        is_windows_supported=True,
+        conda=CondaInfo(r"D:\Anaconda\Scripts\conda.exe", "conda 24", ["base"]),
+        gpu=None,
+        disk_root="D:",
+        free_disk_gb=88.5,
+        mirror_reachable=True,
+    )
+    monkeypatch.setattr(pipeline.detector, "detect_all", lambda: snapshot)
+    monkeypatch.setattr(pipeline.cuda_matcher, "choose", lambda *args: type("Plan", (), {"__dict__": {"spec": []}})())
+    monkeypatch.setattr(state, "STATE_PATH", tmp_path / "state.json")
+    events = []
+
+    def cancel_inside_create_env(*args, **kwargs):
+        pipe.cancel()
+        assert kwargs["cancel_token"].is_cancelled()
+        raise CancelledCommand("canceled")
+
+    monkeypatch.setattr(pipeline.conda_manager, "create_env", cancel_inside_create_env)
+
+    pipe = pipeline.Pipeline(
+        {"env_name": "demo", "python_version": "3.12", "install_dir": str(tmp_path)},
+        lambda line: None,
+        lambda step, status: events.append((step, status)),
+        lambda ok, msg: events.append(("done", ok, msg)),
+    )
+
+    pipe.run()
+
+    assert ("env", "fail") not in events
+    assert events[-1] == ("done", False, "canceled")

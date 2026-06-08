@@ -19,6 +19,21 @@ class CommandResult:
     duration_sec: float
 
 
+class CancelledCommand(RuntimeError):
+    pass
+
+
+class CancelToken:
+    def __init__(self) -> None:
+        self._event = threading.Event()
+
+    def cancel(self) -> None:
+        self._event.set()
+
+    def is_cancelled(self) -> bool:
+        return self._event.is_set()
+
+
 def run(
     cmd: Sequence[str],
     *,
@@ -26,6 +41,7 @@ def run(
     env: dict | None = None,
     on_line: Callable[[str], None] | None = None,
     timeout: float | None = None,
+    cancel_token: CancelToken | None = None,
 ) -> CommandResult:
     """Run a subprocess without opening a console window on Windows."""
     if isinstance(cmd, (str, bytes)) or not isinstance(cmd, Sequence):
@@ -63,6 +79,9 @@ def run(
     chunks: list[str] = []
     try:
         while True:
+            if cancel_token is not None and cancel_token.is_cancelled():
+                proc.kill()
+                raise CancelledCommand("canceled")
             elapsed = time.monotonic() - started
             if timeout is not None and elapsed > timeout:
                 proc.kill()
