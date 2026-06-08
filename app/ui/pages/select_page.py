@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from PyQt6.QtCore import pyqtSignal
@@ -13,27 +12,21 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
-    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
 
-from app.ui.widgets.model_card import ModelCard
 from app.core.validation import install_path_notice, install_path_warning
 from app.ui import text
-from app.utils.paths import resource_path
 
 
 class SelectPage(QWidget):
     install_requested = pyqtSignal(dict)
 
-    def __init__(self, data_path: str = "app/data/yolo_models.json", parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("selectPage")
-        self.model_cards: list[ModelCard] = []
-        self.tabs = QTabWidget()
-        self.tabs.setObjectName("modelTabs")
+        self.model_cards: list = []
         self.env_name_edit = QLineEdit("yolo-env")
         self.env_name_edit.setObjectName("envNameEdit")
         self.python_version_combo = QComboBox()
@@ -51,12 +44,10 @@ class SelectPage(QWidget):
         self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
         self.start_button = QPushButton(text.BUTTON_START)
         self.start_button.setObjectName("startInstallButton")
-        self.weights_hint_label = QLabel("模型权重为可选项；只安装 YOLO 环境时可以不选择。")
-        self.weights_hint_label.setObjectName("weightsHintLabel")
-        self.total_label = QLineEdit(self._weights_count_text())
+        self.environment_hint_label = QLabel("此工具只安装 YOLO 运行环境，不默认下载模型权重。")
+        self.environment_hint_label.setObjectName("environmentHintLabel")
+        self.total_label = QLineEdit("模型权重：不下载")
         self.total_label.setReadOnly(True)
-
-        self._load_models(data_path)
 
         form = QFormLayout()
         workspace_row = QHBoxLayout()
@@ -74,8 +65,7 @@ class SelectPage(QWidget):
         footer.addWidget(self.start_button)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(self.weights_hint_label)
-        layout.addWidget(self.tabs, 1)
+        layout.addWidget(self.environment_hint_label)
         layout.addLayout(form)
         layout.addLayout(footer)
 
@@ -83,51 +73,11 @@ class SelectPage(QWidget):
         self.workspace_edit.textChanged.connect(lambda: self.validate_paths())
         self.browse_workspace_button.clicked.connect(self.choose_workspace_directory)
 
-    def _load_models(self, data_path: str) -> None:
-        path = Path(data_path)
-        if not path.is_absolute():
-            path = resource_path(data_path)
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for group in data["groups"]:
-            container = QWidget()
-            group_layout = QVBoxLayout(container)
-            for item in group["items"]:
-                if "weights" in item:
-                    for weight in item["weights"]:
-                        card = ModelCard(item["id"], weight, [""], "")
-                        card.selected_weight = lambda weight=weight, card=card: weight if card.checkbox.isChecked() else None
-                        self._add_card(group_layout, card)
-                else:
-                    card = ModelCard(item["id"], item["label"], item.get("scales", [""]), item.get("suffix", ""))
-                    self._add_card(group_layout, card)
-            group_layout.addStretch(1)
-            scroll = QScrollArea()
-            scroll.setWidgetResizable(True)
-            scroll.setWidget(container)
-            self.tabs.addTab(scroll, group["key"])
-
-    def _add_card(self, layout: QVBoxLayout, card: ModelCard) -> None:
-        card.selection_changed.connect(self._update_total)
-        self.model_cards.append(card)
-        layout.addWidget(card)
-
-    def _update_total(self) -> None:
-        self.total_label.setText(self._weights_count_text())
-
-    def _weights_count_text(self) -> str:
-        return f"可选下载权重：{len(self.selected_weights())} 个"
-
     def selected_weights(self) -> list[str]:
-        return [weight for card in self.model_cards if (weight := card.selected_weight())]
+        return []
 
     def select_weight(self, weight: str) -> None:
-        for card in self.model_cards:
-            for i in range(card.scale_combo.count()):
-                card.scale_combo.setCurrentIndex(i)
-                if card.selected_weight() == weight or f"{card.model_id}{card.scale_combo.currentText()}{card.suffix}.pt" == weight:
-                    card.checkbox.setChecked(True)
-                    self._update_total()
-                    return
+        return
 
     def build_config(self) -> dict:
         return {
