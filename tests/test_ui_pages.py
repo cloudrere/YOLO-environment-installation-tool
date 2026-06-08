@@ -35,6 +35,9 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     page.workspace_edit.setText(str(tmp_path))
     assert page.python_version_combo.currentText() == "3.10"
     assert page.python_version_combo.isEditable()
+    assert page.build_config()["weights"] == []
+    assert page.start_button.isEnabled()
+    assert "可选" in page.weights_hint_label.text()
 
     page.python_version_combo.setEditText("3.12")
     page.select_weight("yolov8n.pt")

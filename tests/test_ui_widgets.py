@@ -25,6 +25,7 @@ def test_model_card_emits_selection_change(qtbot):
 
     assert changes
     assert card.selected_weight() == "yolov8s.pt"
+    assert card.size_label.text() == "可选权重"
 
 
 def test_log_view_truncates_long_lines(qtbot):

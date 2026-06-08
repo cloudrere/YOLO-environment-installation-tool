@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QScrollArea,
@@ -50,7 +51,9 @@ class SelectPage(QWidget):
         self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
         self.start_button = QPushButton(text.BUTTON_START)
         self.start_button.setObjectName("startInstallButton")
-        self.total_label = QLineEdit(text.SELECTED_COUNT.format(count=0))
+        self.weights_hint_label = QLabel("模型权重为可选项；只安装 YOLO 环境时可以不选择。")
+        self.weights_hint_label.setObjectName("weightsHintLabel")
+        self.total_label = QLineEdit(self._weights_count_text())
         self.total_label.setReadOnly(True)
 
         self._load_models(data_path)
@@ -71,6 +74,7 @@ class SelectPage(QWidget):
         footer.addWidget(self.start_button)
 
         layout = QVBoxLayout(self)
+        layout.addWidget(self.weights_hint_label)
         layout.addWidget(self.tabs, 1)
         layout.addLayout(form)
         layout.addLayout(footer)
@@ -108,7 +112,10 @@ class SelectPage(QWidget):
         layout.addWidget(card)
 
     def _update_total(self) -> None:
-        self.total_label.setText(text.SELECTED_COUNT.format(count=len(self.selected_weights())))
+        self.total_label.setText(self._weights_count_text())
+
+    def _weights_count_text(self) -> str:
+        return f"可选下载权重：{len(self.selected_weights())} 个"
 
     def selected_weights(self) -> list[str]:
         return [weight for card in self.model_cards if (weight := card.selected_weight())]

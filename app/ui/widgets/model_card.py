@@ -18,7 +18,7 @@ class ModelCard(QWidget):
         self.scale_combo = QComboBox()
         self.scale_combo.setObjectName(f"modelScale_{model_id}_{suffix}".replace("-", "_"))
         self.scale_combo.addItems(scales or [""])
-        self.size_label = QLabel("weight")
+        self.size_label = QLabel("可选权重")
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 8, 10, 8)
