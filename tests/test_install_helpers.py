@@ -15,6 +15,24 @@ def test_env_python_builds_path_from_library_bin_conda_bat():
     assert path == r"E:\software\ADeepLearning\Anaconda\envs\yolo-env\python.exe"
 
 
+def test_conda_root_supports_common_windows_entrypoints():
+    cases = [
+        (r"C:\Users\alice\miniconda3\Scripts\conda.exe", r"C:\Users\alice\miniconda3"),
+        (r"D:\Apps\Anaconda3\Library\bin\conda.bat", r"D:\Apps\Anaconda3"),
+        (r"E:\Tools\miniconda3\condabin\conda.bat", r"E:\Tools\miniconda3"),
+        (r"F:\PortableConda\conda.exe", r"F:\PortableConda"),
+    ]
+
+    for conda_exe, expected_root in cases:
+        assert conda_manager.conda_root_from_executable(conda_exe) == expected_root
+
+
+def test_env_python_uses_condabin_root():
+    path = conda_manager.env_python(r"E:\Tools\miniconda3\condabin\conda.bat", "yolo-env")
+
+    assert path == r"E:\Tools\miniconda3\envs\yolo-env\python.exe"
+
+
 def test_create_env_runs_conda_create(monkeypatch):
     calls = []
     token = object()

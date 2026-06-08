@@ -58,15 +58,23 @@ def write_condarc(channels: list[str], backup_dir: str) -> None:
     condarc.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def env_python(conda_exe: str, env_name: str) -> str:
+def conda_root_from_executable(conda_exe: str | None) -> str | None:
+    if not conda_exe:
+        return None
     conda_path = Path(conda_exe)
     parts = [part.lower() for part in conda_path.parts]
     if len(parts) >= 3 and parts[-3:] == ["library", "bin", conda_path.name.lower()]:
-        root = conda_path.parents[2]
-    elif conda_path.parent.name.lower() == "scripts":
-        root = conda_path.parent.parent
-    else:
-        root = conda_path.parent
+        return str(conda_path.parents[2])
+    if len(parts) >= 2 and parts[-2:] in [
+        ["scripts", conda_path.name.lower()],
+        ["condabin", conda_path.name.lower()],
+    ]:
+        return str(conda_path.parents[1])
+    return str(conda_path.parent)
+
+
+def env_python(conda_exe: str, env_name: str) -> str:
+    root = Path(conda_root_from_executable(conda_exe) or Path(conda_exe).parent)
     return str(root / "envs" / env_name / "python.exe")
 
 

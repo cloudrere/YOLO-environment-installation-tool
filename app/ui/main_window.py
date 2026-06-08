@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QTabWidget
 
+from app.core.conda_manager import conda_root_from_executable
 from app.core.cuda_matcher import choose
 from app.core.detector import CondaInfo, EnvSnapshot, detect_all
 from app.core.ultralytics_setup import smoke_test
@@ -147,12 +148,4 @@ class MainWindow(QMainWindow):
 
 
 def conda_install_root(conda_exe: str | None) -> str | None:
-    if not conda_exe:
-        return None
-    conda_path = Path(conda_exe)
-    parts = [part.lower() for part in conda_path.parts]
-    if len(parts) >= 3 and parts[-3:] == ["library", "bin", conda_path.name.lower()]:
-        return str(conda_path.parents[2])
-    if len(parts) >= 2 and parts[-2:] == ["scripts", conda_path.name.lower()]:
-        return str(conda_path.parents[1])
-    return str(conda_path.parent)
+    return conda_root_from_executable(conda_exe)

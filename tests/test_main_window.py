@@ -75,6 +75,27 @@ def test_main_window_detection_sets_install_dir_to_conda_root(qtbot, monkeypatch
     assert window.select_page.workspace_edit.text() == r"E:\software\ADeepLearning\Anaconda"
 
 
+def test_main_window_detection_sets_install_dir_from_condabin_entrypoint(qtbot, monkeypatch):
+    def snapshot_with_condabin_root():
+        return EnvSnapshot(
+            os="Windows 11",
+            is_windows_supported=True,
+            conda=CondaInfo(r"D:\Tools\Miniconda3\condabin\conda.bat", "conda 24", ["base"]),
+            gpu=None,
+            disk_root="D:",
+            free_disk_gb=50,
+            mirror_reachable=True,
+        )
+
+    monkeypatch.setattr("app.ui.main_window.detect_all", snapshot_with_condabin_root)
+    window = MainWindow(dry_run=True)
+    qtbot.addWidget(window)
+
+    window.run_detection()
+
+    assert window.select_page.workspace_edit.text() == r"D:\Tools\Miniconda3"
+
+
 def test_main_window_installs_miniconda_in_worker_and_uses_returned_conda(qtbot, monkeypatch, tmp_path):
     missing = EnvSnapshot(
         os="Windows 11",
