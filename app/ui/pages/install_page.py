@@ -15,6 +15,8 @@ class InstallPage(QWidget):
         self.cancel_button = QPushButton("Cancel")
         self.try_button = QPushButton("Try")
         self.try_button.setEnabled(False)
+        self.uninstall_button = QPushButton("Uninstall environment")
+        self.uninstall_button.setEnabled(False)
 
         layout = QVBoxLayout(self)
         for step in Pipeline.STEPS:
@@ -25,6 +27,7 @@ class InstallPage(QWidget):
         layout.addWidget(self.log_view, 1)
         layout.addWidget(self.cancel_button)
         layout.addWidget(self.try_button)
+        layout.addWidget(self.uninstall_button)
 
     def set_step(self, step: str, status: str) -> None:
         if step in self.step_labels:
@@ -37,4 +40,4 @@ class InstallPage(QWidget):
         if message:
             self.append_log(message)
         self.try_button.setEnabled(ok)
-
+        self.uninstall_button.setEnabled(ok)

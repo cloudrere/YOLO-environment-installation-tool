@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from app.ui.widgets.model_card import ModelCard
+from app.core.validation import install_path_warning
 
 
 class SelectPage(QWidget):
@@ -32,6 +33,9 @@ class SelectPage(QWidget):
         self.env_name_edit.setObjectName("envNameEdit")
         self.workspace_edit = QLineEdit(str(Path.home() / "yolo_workspace"))
         self.workspace_edit.setObjectName("workspaceEdit")
+        self.path_warning_label = QLineEdit("")
+        self.path_warning_label.setObjectName("pathWarningLabel")
+        self.path_warning_label.setReadOnly(True)
         self.jupyter_check = QCheckBox("Install Jupyter")
         self.shortcut_check = QCheckBox("Create desktop shortcut")
         self.start_button = QPushButton("Start")
@@ -44,6 +48,7 @@ class SelectPage(QWidget):
         form = QFormLayout()
         form.addRow("Environment", self.env_name_edit)
         form.addRow("Workspace", self.workspace_edit)
+        form.addRow("Warning", self.path_warning_label)
         form.addRow("", self.jupyter_check)
         form.addRow("", self.shortcut_check)
 
@@ -57,6 +62,7 @@ class SelectPage(QWidget):
         layout.addLayout(footer)
 
         self.start_button.clicked.connect(lambda: self.install_requested.emit(self.build_config()))
+        self.workspace_edit.textChanged.connect(lambda: self.validate_paths())
 
     def _load_models(self, data_path: str) -> None:
         data = json.loads(Path(data_path).read_text(encoding="utf-8"))
@@ -109,3 +115,8 @@ class SelectPage(QWidget):
             "pip_mirror": "https://pypi.tuna.tsinghua.edu.cn/simple",
         }
 
+    def validate_paths(self) -> bool:
+        warning = install_path_warning(self.workspace_edit.text())
+        self.path_warning_label.setText(warning)
+        self.start_button.setEnabled(not warning)
+        return not warning

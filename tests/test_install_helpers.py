@@ -65,6 +65,34 @@ def test_pip_install_includes_extra_index(monkeypatch):
     assert calls[0][-1] == "torch"
 
 
+def test_pip_install_switches_to_fallback_mirrors(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        if "https://fallback.example/simple" in cmd:
+            return CommandResult(0, "ok", 0)
+        return CommandResult(1, "failed", 0)
+
+    mirrors = tmp_path / "mirrors.json"
+    mirrors.write_text(
+        '{"pip": [{"name": "Fallback", "url": "https://fallback.example/simple"}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(pip_installer, "run", fake_run)
+
+    pip_installer.pip_install(
+        "python.exe",
+        ["demo"],
+        index_url="https://bad.example/simple",
+        retries=2,
+        mirrors_path=str(mirrors),
+    )
+
+    assert calls[0][5] == "https://bad.example/simple"
+    assert calls[1][5] == "https://fallback.example/simple"
+
+
 def test_install_jupyter_invokes_pip(monkeypatch):
     calls = []
     monkeypatch.setattr(jupyter_installer, "pip_install", lambda *args, **kwargs: calls.append((args, kwargs)))

@@ -5,7 +5,9 @@ from pathlib import Path
 from PyQt6.QtWidgets import QMainWindow, QTabWidget
 
 from app.core.cuda_matcher import choose
+from app.core.conda_manager import remove_env
 from app.core.detector import detect_all
+from app.core.ultralytics_setup import smoke_test
 from app.ui.pages.detect_page import DetectPage
 from app.ui.pages.install_page import InstallPage
 from app.ui.pages.select_page import SelectPage
@@ -18,6 +20,7 @@ class MainWindow(QMainWindow):
         self.dry_run = dry_run
         self.worker: InstallWorker | None = None
         self.snapshot = None
+        self.current_config: dict = {}
         self.setWindowTitle("YOLO Installer")
         self.resize(980, 680)
 
@@ -35,6 +38,8 @@ class MainWindow(QMainWindow):
         self.detect_page.next_requested.connect(lambda: self.tabs.setCurrentWidget(self.select_page))
         self.select_page.install_requested.connect(self.start_install)
         self.install_page.cancel_button.clicked.connect(self.cancel_install)
+        self.install_page.try_button.clicked.connect(self.run_preview)
+        self.install_page.uninstall_button.clicked.connect(self.uninstall_environment)
         self._load_style()
 
     def _load_style(self) -> None:
@@ -50,6 +55,7 @@ class MainWindow(QMainWindow):
             self.run_detection()
         plan = choose(self.snapshot.gpu, "app/data/cuda_torch_map.json")
         config = {**config, "torch_plan": plan.__dict__, "python_exe": "python", "conda_exe": "conda"}
+        self.current_config = config
         self.tabs.setCurrentWidget(self.install_page)
         self.worker = InstallWorker(config, dry_run=self.dry_run)
         self.worker.line_emitted.connect(self.install_page.append_log)
@@ -61,3 +67,18 @@ class MainWindow(QMainWindow):
         if self.worker is not None:
             self.worker.cancel()
 
+    def run_preview(self) -> None:
+        config = self.current_config
+        weights = config.get("weights") or ["yolov8n.pt"]
+        ok = smoke_test(
+            config.get("python_exe", "python"),
+            weights[0],
+            config.get("smoke_image", "assets/bus.jpg"),
+            config.get("smoke_output", "result.jpg"),
+        )
+        self.install_page.append_log("Preview succeeded" if ok else "Preview failed")
+
+    def uninstall_environment(self) -> None:
+        config = self.current_config
+        remove_env(config.get("conda_exe", "conda"), config.get("env_name", "yolo-env"))
+        self.install_page.append_log("Environment removed")
