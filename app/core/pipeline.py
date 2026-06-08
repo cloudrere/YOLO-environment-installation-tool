@@ -99,6 +99,9 @@ class Pipeline:
         package = package_by_step.get(step)
         if not package:
             return
+        if self.config.get("skip_torch", False) and self.config.get("skip_ultralytics", False):
+            self.on_line(f"已同时跳过 PyTorch 和 Ultralytics，跳过 {package} 检测")
+            return
         if not self.python_exe:
             raise InstallError(f"跳过 {package} 安装前无法定位 Python 解释器")
         if not python_package_exists(self.python_exe, package):
