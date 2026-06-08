@@ -15,3 +15,9 @@ Run a dry pipeline:
 ```powershell
 E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe main.py --dry-run --models yolov8n
 ```
+
+Launch the desktop UI in safe dry-run mode:
+
+```powershell
+E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe main.py --gui --dry-run
+```

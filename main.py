@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 
 from app.core.cuda_matcher import choose
 from app.core.detector import detect_all
@@ -9,11 +10,26 @@ from app.core.pipeline import Pipeline
 from app.core.ultralytics_setup import weights_from_model_ids
 
 
+def run_gui(*, dry_run: bool) -> int:
+    from PyQt6.QtWidgets import QApplication
+
+    from app.ui.main_window import MainWindow
+
+    app = QApplication.instance() or QApplication(sys.argv)
+    window = MainWindow(dry_run=dry_run)
+    window.show()
+    return app.exec()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="YOLO installer M1 CLI")
+    parser.add_argument("--gui", action="store_true", help="Launch the PyQt6 desktop interface")
     parser.add_argument("--dry-run", action="store_true", help="Run pipeline callbacks without installing")
     parser.add_argument("--models", nargs="*", default=["yolov8:n"], help="Model specs such as yolov8:n")
     args = parser.parse_args()
+
+    if args.gui:
+        return run_gui(dry_run=args.dry_run)
 
     snapshot = detect_all()
     plan = choose(snapshot.gpu, "app/data/cuda_torch_map.json")

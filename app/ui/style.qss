@@ -1,0 +1,56 @@
+QWidget {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  color: #172033;
+  background: #f6f7f9;
+}
+
+QTabWidget::pane {
+  border: 1px solid #d8dde6;
+  background: #ffffff;
+}
+
+QPushButton {
+  min-height: 34px;
+  padding: 6px 14px;
+  border: 1px solid #9aa7b8;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+QPushButton:enabled:hover {
+  background: #edf4ff;
+  border-color: #4f7fcf;
+}
+
+QPushButton:disabled {
+  color: #8a95a3;
+  background: #eef1f5;
+}
+
+#statusCard {
+  border: 1px solid #d8dde6;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+#statusCardTitle {
+  color: #667085;
+  font-weight: 600;
+}
+
+#statusCardValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#statusCardDetail {
+  color: #475467;
+}
+
+QLineEdit, QComboBox, QPlainTextEdit {
+  border: 1px solid #c7ced9;
+  border-radius: 4px;
+  padding: 5px;
+  background: #ffffff;
+}
