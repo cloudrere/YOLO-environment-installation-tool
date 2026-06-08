@@ -23,6 +23,7 @@ class DetectPage(QWidget):
         self.os_card = StatusCard(text.LABEL_OS, text.STATUS_NOT_CHECKED)
         self.conda_card = StatusCard(text.LABEL_CONDA, text.STATUS_NOT_CHECKED)
         self.gpu_card = StatusCard(text.LABEL_GPU, text.STATUS_NOT_CHECKED)
+        self.cuda_card = StatusCard("CUDA 版本", text.STATUS_NOT_CHECKED)
         self.disk_card = StatusCard(text.LABEL_DISK, text.STATUS_NOT_CHECKED)
         self.conda_envs_title_label = QLabel("当前 Conda 环境")
         self.conda_envs_title_label.setObjectName("sectionTitleLabel")
@@ -42,7 +43,8 @@ class DetectPage(QWidget):
         cards.addWidget(self.os_card, 0, 0)
         cards.addWidget(self.conda_card, 0, 1)
         cards.addWidget(self.gpu_card, 1, 0)
-        cards.addWidget(self.disk_card, 1, 1)
+        cards.addWidget(self.cuda_card, 1, 1)
+        cards.addWidget(self.disk_card, 2, 0, 1, 2)
 
         env_panel = QFrame()
         env_panel.setObjectName("condaEnvPanel")
@@ -79,9 +81,11 @@ class DetectPage(QWidget):
         self.conda_envs_label.setText(", ".join(snapshot.conda.envs) if snapshot.conda.envs else "未发现 Conda 环境")
         self.install_conda_button.setVisible(not bool(snapshot.conda.path))
         if snapshot.gpu:
-            self.gpu_card.set_status(snapshot.gpu.name, f"CUDA {snapshot.gpu.cuda_runtime_max}, {snapshot.gpu.memory_mib} MiB")
+            self.gpu_card.set_status(snapshot.gpu.name, f"{snapshot.gpu.memory_mib} MiB")
+            self.cuda_card.set_status(f"CUDA {snapshot.gpu.cuda_runtime_max}", f"驱动版本：{snapshot.gpu.driver}")
         else:
             self.gpu_card.set_status(text.STATUS_CPU_MODE, text.STATUS_NO_NVIDIA)
+            self.cuda_card.set_status("未检测到 CUDA", "未检测到 NVIDIA 显卡或 nvidia-smi")
         self.disk_card.set_status(f"{snapshot.disk_root} {snapshot.free_disk_gb:.1f} GB 可用", text.STATUS_USER_WORKSPACE)
         self.next_button.setEnabled(snapshot.is_windows_supported)
 

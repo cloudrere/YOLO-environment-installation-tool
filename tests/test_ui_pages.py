@@ -25,6 +25,8 @@ def test_detect_page_renders_snapshot(qtbot):
 
     assert page.os_card.value_label.text() == "Windows 10"
     assert page.gpu_card.value_label.text() == "RTX 4070"
+    assert page.cuda_card.value_label.text() == "CUDA 12.4"
+    assert "550.78" in page.cuda_card.detail_label.text()
     assert page.disk_card.value_label.text() == "D: 88.5 GB 可用"
     assert page.conda_envs_label.text() == "base, ultralytics, yolo"
     assert page.next_button.isEnabled()
@@ -47,6 +49,7 @@ def test_detect_page_shows_miniconda_install_when_conda_missing(qtbot):
 
     assert not page.install_conda_button.isHidden()
     assert page.install_conda_button.isEnabled()
+    assert page.cuda_card.value_label.text() == "未检测到 CUDA"
     assert page.install_conda_button.text() == "一键安装 Miniconda"
 
 
