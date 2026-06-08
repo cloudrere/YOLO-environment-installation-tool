@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.core.detector import GpuInfo
+from app.utils.paths import resource_path
 
 
 @dataclass(frozen=True)
@@ -38,7 +39,10 @@ def _cuda_tag_version(index_url: str) -> tuple[int, int] | None:
 
 
 def choose(gpu: GpuInfo | None, table_path: str) -> TorchPlan:
-    table = json.loads(Path(table_path).read_text(encoding="utf-8"))
+    path = Path(table_path)
+    if not path.is_absolute():
+        path = resource_path(table_path)
+    table = json.loads(path.read_text(encoding="utf-8"))
     if gpu is None:
         return _cpu_plan(table)
 

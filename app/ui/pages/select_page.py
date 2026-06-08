@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 
 from app.ui.widgets.model_card import ModelCard
 from app.core.validation import install_path_warning
+from app.utils.paths import resource_path
 
 
 class SelectPage(QWidget):
@@ -65,7 +66,10 @@ class SelectPage(QWidget):
         self.workspace_edit.textChanged.connect(lambda: self.validate_paths())
 
     def _load_models(self, data_path: str) -> None:
-        data = json.loads(Path(data_path).read_text(encoding="utf-8"))
+        path = Path(data_path)
+        if not path.is_absolute():
+            path = resource_path(data_path)
+        data = json.loads(path.read_text(encoding="utf-8"))
         for group in data["groups"]:
             container = QWidget()
             group_layout = QVBoxLayout(container)

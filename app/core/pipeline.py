@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app.core import conda_manager, cuda_matcher, detector, jupyter_installer, pip_installer, state, ultralytics_setup
 from app.core.state import InstallState
+from app.utils.paths import resource_path
 
 
 class Pipeline:
@@ -53,7 +54,7 @@ class Pipeline:
 
     def _do_detect(self) -> None:
         self.snapshot = detector.detect_all()
-        self.config["torch_plan"] = cuda_matcher.choose(self.snapshot.gpu, "app/data/cuda_torch_map.json").__dict__
+        self.config["torch_plan"] = cuda_matcher.choose(self.snapshot.gpu, str(resource_path("app/data/cuda_torch_map.json"))).__dict__
 
     def _do_conda(self) -> None:
         self.conda_exe = self.config.get("conda_exe") or conda_manager.find_existing_conda()
@@ -112,4 +113,3 @@ class Pipeline:
     def _do_shortcut(self) -> None:
         if self.config.get("make_shortcut", False):
             self.on_line("shortcut creation will be implemented in GUI milestone")
-

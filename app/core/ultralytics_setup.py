@@ -5,6 +5,7 @@ from pathlib import Path
 
 from app.core.errors import InstallError
 from app.core.pip_installer import pip_install
+from app.utils.paths import resource_path
 from app.utils.runner import run
 
 
@@ -72,7 +73,10 @@ def smoke_test(python_exe: str, weight: str, image_path: str, out_path: str) -> 
 
 
 def weights_from_model_ids(model_ids: list[str], data_path: str = "app/data/yolo_models.json") -> list[str]:
-    table = json.loads(Path(data_path).read_text(encoding="utf-8"))
+    path = Path(data_path)
+    if not path.is_absolute():
+        path = resource_path(data_path)
+    table = json.loads(path.read_text(encoding="utf-8"))
     selected: list[str] = []
     for requested in model_ids:
         model_id, _, variant = requested.partition(":")

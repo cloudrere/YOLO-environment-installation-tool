@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from app.core.errors import InstallError
+from app.utils.paths import resource_path
 from app.utils.runner import run
 
 
@@ -34,6 +35,8 @@ def pip_install(
 
 def _fallback_indexes(mirrors_path: str, primary: str) -> list[str]:
     path = Path(mirrors_path)
+    if not path.is_absolute():
+        path = resource_path(mirrors_path)
     if not path.exists():
         return []
     data = json.loads(path.read_text(encoding="utf-8"))

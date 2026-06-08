@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from PyQt6.QtWidgets import QMainWindow, QTabWidget
 
 from app.core.cuda_matcher import choose
@@ -12,6 +10,7 @@ from app.ui.pages.detect_page import DetectPage
 from app.ui.pages.install_page import InstallPage
 from app.ui.pages.select_page import SelectPage
 from app.ui.workers import InstallWorker
+from app.utils.paths import resource_path
 
 
 class MainWindow(QMainWindow):
@@ -43,7 +42,7 @@ class MainWindow(QMainWindow):
         self._load_style()
 
     def _load_style(self) -> None:
-        qss = Path("app/ui/style.qss")
+        qss = resource_path("app/ui/style.qss")
         if qss.exists():
             self.setStyleSheet(qss.read_text(encoding="utf-8"))
 
@@ -53,7 +52,7 @@ class MainWindow(QMainWindow):
     def start_install(self, config: dict) -> None:
         if self.snapshot is None:
             self.run_detection()
-        plan = choose(self.snapshot.gpu, "app/data/cuda_torch_map.json")
+        plan = choose(self.snapshot.gpu, str(resource_path("app/data/cuda_torch_map.json")))
         config = {**config, "torch_plan": plan.__dict__, "python_exe": "python", "conda_exe": "conda"}
         self.current_config = config
         self.tabs.setCurrentWidget(self.install_page)
