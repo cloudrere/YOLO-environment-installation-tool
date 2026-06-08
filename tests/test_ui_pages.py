@@ -45,8 +45,8 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     assert page.start_button.isEnabled()
     assert page.model_cards == []
     assert page.title_label.text() == "YOLO 环境安装配置"
-    assert "安装目录" in page.install_dir_label.text()
-    assert "安装目录" in page.summary_label.text()
+    assert "Conda 根目录" in page.install_dir_label.text()
+    assert "Conda 根目录" in page.summary_label.text()
 
     page.python_version_combo.setEditText("3.12")
     config = page.build_config()
@@ -67,7 +67,7 @@ def test_select_page_uses_split_install_layout(qtbot):
     assert "检测 Conda 与显卡" in page.side_steps_label.text()
     assert "创建独立 YOLO 环境" in page.side_steps_label.text()
     assert page.install_config_panel.objectName() == "installConfigPanel"
-    assert page.panel_title_label.text() == "安装目录与环境参数"
+    assert page.panel_title_label.text() == "Conda 根目录与环境参数"
     assert page.total_label.text() == "模型权重：不下载"
 
 

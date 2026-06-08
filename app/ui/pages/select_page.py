@@ -48,12 +48,12 @@ class SelectPage(QWidget):
 
         self.title_label = QLabel("YOLO 环境安装配置")
         self.title_label.setObjectName("selectTitleLabel")
-        self.panel_title_label = QLabel("安装目录与环境参数")
+        self.panel_title_label = QLabel("Conda 根目录与环境参数")
         self.panel_title_label.setObjectName("selectPanelTitle")
-        self.summary_label = QLabel("选择环境名称、Python 版本和安装目录；模型权重默认不下载。")
+        self.summary_label = QLabel("选择环境名称、Python 版本和 Conda 根目录；模型权重默认不下载。")
         self.summary_label.setObjectName("selectSummaryLabel")
         self.summary_label.setWordWrap(True)
-        self.install_dir_label = QLabel("安装目录")
+        self.install_dir_label = QLabel("Conda 根目录")
         self.install_dir_label.setObjectName("installDirLabel")
         self.env_name_edit = QLineEdit("yolo-env")
         self.env_name_edit.setObjectName("envNameEdit")
@@ -72,7 +72,7 @@ class SelectPage(QWidget):
         self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
         self.start_button = QPushButton(text.BUTTON_START)
         self.start_button.setObjectName("startInstallButton")
-        self.environment_hint_label = QLabel("安装目录建议放在 D/E 等非系统盘，路径尽量使用英文和数字。")
+        self.environment_hint_label = QLabel("Conda 根目录用于创建和删除环境，建议使用已检测到的 Anaconda/Miniconda 根目录。")
         self.environment_hint_label.setObjectName("environmentHintLabel")
         self.total_label = QLineEdit("模型权重：不下载")
         self.total_label.setObjectName("weightStatusLine")
@@ -141,7 +141,7 @@ class SelectPage(QWidget):
         }
 
     def choose_workspace_directory(self) -> None:
-        directory = QFileDialog.getExistingDirectory(self, "选择安装目录", self.workspace_edit.text().strip())
+        directory = QFileDialog.getExistingDirectory(self, "选择 Conda 根目录", self.workspace_edit.text().strip())
         if directory:
             self.workspace_edit.setText(directory)
 
