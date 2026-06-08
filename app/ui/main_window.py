@@ -54,7 +54,9 @@ class MainWindow(QMainWindow):
         if self.snapshot is None:
             self.run_detection()
         plan = choose(self.snapshot.gpu, str(resource_path("app/data/cuda_torch_map.json")))
-        config = {**config, "torch_plan": plan.__dict__, "python_exe": "python", "conda_exe": "conda"}
+        config = {**config, "torch_plan": plan.__dict__}
+        if self.snapshot.conda.path:
+            config["conda_exe"] = self.snapshot.conda.path
         self.current_config = config
         self.tabs.setCurrentWidget(self.install_page)
         self.worker = InstallWorker(config, dry_run=self.dry_run)

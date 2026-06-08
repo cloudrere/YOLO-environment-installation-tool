@@ -47,7 +47,7 @@ class DetectPage(QWidget):
             self.gpu_card.set_status(snapshot.gpu.name, f"CUDA {snapshot.gpu.cuda_runtime_max}, {snapshot.gpu.memory_mib} MiB")
         else:
             self.gpu_card.set_status(text.STATUS_CPU_MODE, text.STATUS_NO_NVIDIA)
-        self.disk_card.set_status(f"{snapshot.free_disk_gb:.1f} GB 可用", text.STATUS_USER_WORKSPACE)
+        self.disk_card.set_status(f"{snapshot.disk_root} {snapshot.free_disk_gb:.1f} GB 可用", text.STATUS_USER_WORKSPACE)
         self.next_button.setEnabled(snapshot.is_windows_supported)
 
     def run_detection(self, detect_func=None) -> EnvSnapshot:

@@ -10,6 +10,7 @@ def fake_snapshot():
         is_windows_supported=True,
         conda=CondaInfo("conda.exe", "conda 24", ["base"]),
         gpu=GpuInfo("RTX 4070", "550.78", 12282, "12.4"),
+        disk_root="D:",
         free_disk_gb=50,
         mirror_reachable=True,
     )
@@ -54,6 +55,36 @@ def test_main_window_preview_action_logs_result(qtbot, monkeypatch):
 
     assert calls
     assert "预览成功" in window.install_page.log_view.toPlainText()
+
+
+def test_main_window_uses_detected_conda_and_allows_env_creation(qtbot, monkeypatch):
+    monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
+    started = []
+
+    class SignalStub:
+        def connect(self, slot):
+            self.slot = slot
+
+    class FakeWorker:
+        def __init__(self, config, dry_run=False):
+            self.config = config
+            self.dry_run = dry_run
+            self.line_emitted = SignalStub()
+            self.step_changed = SignalStub()
+            self.finished = SignalStub()
+
+        def start(self):
+            started.append(self.config)
+
+    monkeypatch.setattr("app.ui.main_window.InstallWorker", FakeWorker)
+    window = MainWindow(dry_run=False)
+    qtbot.addWidget(window)
+    window.run_detection()
+
+    window.start_install({"env_name": "demo", "python_version": "3.12", "weights": []})
+
+    assert started[0]["conda_exe"] == "conda.exe"
+    assert "python_exe" not in started[0]
 
 
 def test_main_window_uninstall_action_removes_env(qtbot, monkeypatch):

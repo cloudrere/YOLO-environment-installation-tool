@@ -34,6 +34,7 @@ class EnvSnapshot:
     is_windows_supported: bool
     conda: CondaInfo
     gpu: GpuInfo | None
+    disk_root: str
     free_disk_gb: float
     mirror_reachable: bool
 
@@ -100,7 +101,8 @@ def _detect_gpu() -> GpuInfo | None:
 
 
 def detect_all() -> EnvSnapshot:
-    usage = shutil.disk_usage(os.path.expanduser("~"))
+    disk_root = _disk_root(os.path.expanduser("~"))
+    usage = shutil.disk_usage(disk_root)
     system = platform.system()
     release = platform.release()
     display_os = windows_display_name(system, release, platform.version())
@@ -109,6 +111,12 @@ def detect_all() -> EnvSnapshot:
         is_windows_supported=system == "Windows" and display_os in {"Windows 10", "Windows 11"},
         conda=_detect_conda(),
         gpu=_detect_gpu(),
+        disk_root=disk_root,
         free_disk_gb=round(usage.free / (1024**3), 2),
         mirror_reachable=True,
     )
+
+
+def _disk_root(path: str) -> str:
+    drive, _ = os.path.splitdrive(os.path.abspath(path))
+    return drive or os.path.abspath(path)

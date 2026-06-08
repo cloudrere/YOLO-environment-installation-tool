@@ -60,7 +60,8 @@ class Pipeline:
         self.config["torch_plan"] = cuda_matcher.choose(self.snapshot.gpu, str(resource_path("app/data/cuda_torch_map.json"))).__dict__
 
     def _do_conda(self) -> None:
-        self.conda_exe = self.config.get("conda_exe") or conda_manager.find_existing_conda()
+        detected_conda = self.snapshot.conda.path if self.snapshot and self.snapshot.conda.path else None
+        self.conda_exe = self.config.get("conda_exe") or detected_conda or conda_manager.find_existing_conda()
         if not self.conda_exe:
             self.conda_exe = conda_manager.install_miniconda(self.config["install_dir"], self.on_line)
 

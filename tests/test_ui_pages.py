@@ -11,6 +11,7 @@ def snapshot():
         is_windows_supported=True,
         conda=CondaInfo("conda.exe", "conda 24", ["base"]),
         gpu=GpuInfo("RTX 4070", "550.78", 12282, "12.4"),
+        disk_root="D:",
         free_disk_gb=88.5,
         mirror_reachable=True,
     )
@@ -24,6 +25,7 @@ def test_detect_page_renders_snapshot(qtbot):
 
     assert page.os_card.value_label.text() == "Windows 10"
     assert page.gpu_card.value_label.text() == "RTX 4070"
+    assert page.disk_card.value_label.text() == "D: 88.5 GB 可用"
     assert page.next_button.isEnabled()
 
 
