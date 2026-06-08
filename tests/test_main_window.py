@@ -38,6 +38,31 @@ def test_main_window_detect_next_moves_to_models(qtbot, monkeypatch):
     assert window.tabs.currentWidget() is window.select_page
 
 
+def test_main_window_detection_sets_install_dir_to_conda_root(qtbot, monkeypatch):
+    def snapshot_with_conda_root():
+        return EnvSnapshot(
+            os="Windows 11",
+            is_windows_supported=True,
+            conda=CondaInfo(
+                r"E:\software\ADeepLearning\Anaconda\Library\bin\conda.BAT",
+                "conda 24",
+                ["base", "ultralytics"],
+            ),
+            gpu=GpuInfo("RTX 4070", "550.78", 12282, "12.4"),
+            disk_root="E:",
+            free_disk_gb=50,
+            mirror_reachable=True,
+        )
+
+    monkeypatch.setattr("app.ui.main_window.detect_all", snapshot_with_conda_root)
+    window = MainWindow(dry_run=True)
+    qtbot.addWidget(window)
+
+    window.run_detection()
+
+    assert window.select_page.workspace_edit.text() == r"E:\software\ADeepLearning\Anaconda"
+
+
 def test_main_window_preview_action_logs_result(qtbot, monkeypatch):
     monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
     calls = []

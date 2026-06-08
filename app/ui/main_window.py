@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from PyQt6.QtWidgets import QMainWindow, QTabWidget
 
 from app.core.errors import InstallError
@@ -50,6 +52,9 @@ class MainWindow(QMainWindow):
 
     def run_detection(self) -> None:
         self.snapshot = self.detect_page.run_detection(detect_all)
+        conda_root = conda_install_root(self.snapshot.conda.path)
+        if conda_root:
+            self.select_page.workspace_edit.setText(conda_root)
 
     def start_install(self, config: dict) -> None:
         if self.snapshot is None:
@@ -92,3 +97,15 @@ class MainWindow(QMainWindow):
             self.install_page.append_log(f"卸载失败：{exc}")
             return
         self.install_page.append_log(f"{text.ENV_REMOVED}：{env_name}")
+
+
+def conda_install_root(conda_exe: str | None) -> str | None:
+    if not conda_exe:
+        return None
+    conda_path = Path(conda_exe)
+    parts = [part.lower() for part in conda_path.parts]
+    if len(parts) >= 3 and parts[-3:] == ["library", "bin", conda_path.name.lower()]:
+        return str(conda_path.parents[2])
+    if len(parts) >= 2 and parts[-2:] == ["scripts", conda_path.name.lower()]:
+        return str(conda_path.parents[1])
+    return str(conda_path.parent)
