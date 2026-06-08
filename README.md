@@ -85,19 +85,19 @@ python -c "import ultralytics; print(ultralytics.__version__)"
 例如检测到 Conda 程序位于：
 
 ```text
-E:\software\ADeepLearning\Anaconda\Scripts\conda.exe
+D:\Apps\Anaconda3\Scripts\conda.exe
 ```
 
 那么 Conda 安装目录就是：
 
 ```text
-E:\software\ADeepLearning\Anaconda
+D:\Apps\Anaconda3
 ```
 
 创建的 YOLO 环境通常会位于：
 
 ```text
-E:\software\ADeepLearning\Anaconda\envs\yolo-env
+D:\Apps\Anaconda3\envs\yolo-env
 ```
 
 ## 安装目录建议
@@ -106,7 +106,7 @@ E:\software\ADeepLearning\Anaconda\envs\yolo-env
 
 ```text
 D:\Miniconda3
-E:\ADeepLearning\Anaconda
+E:\Apps\Anaconda3
 ```
 
 不推荐使用中文路径、空格路径或特殊符号路径，以减少第三方包安装失败的概率。

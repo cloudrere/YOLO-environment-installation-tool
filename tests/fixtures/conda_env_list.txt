@@ -1,6 +1,5 @@
 # conda environments:
 #
-base                  *  E:\software\ADeepLearning\Anaconda
-ultralytics              E:\software\ADeepLearning\Anaconda\envs\ultralytics
-yolo                     E:\software\ADeepLearning\Anaconda\envs\yolo
-
+base                  *  D:\Apps\Anaconda3
+ultralytics              D:\Apps\Anaconda3\envs\ultralytics
+yolo                     D:\Apps\Anaconda3\envs\yolo

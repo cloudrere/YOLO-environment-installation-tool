@@ -1,5 +1,5 @@
 param(
-    [string]$Python = "E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe"
+    [string]$Python = "python"
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,4 +25,3 @@ $Hash = (Get-FileHash -LiteralPath $Exe -Algorithm SHA256).Hash.ToLowerInvariant
 
 Write-Host "Release artifact: $Exe"
 Write-Host "Checksum file: $Sha"
-

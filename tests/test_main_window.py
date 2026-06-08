@@ -57,7 +57,7 @@ def test_main_window_detection_sets_install_dir_to_conda_root(qtbot, monkeypatch
             os="Windows 11",
             is_windows_supported=True,
             conda=CondaInfo(
-                r"E:\software\ADeepLearning\Anaconda\Library\bin\conda.BAT",
+                r"D:\Apps\Anaconda3\Library\bin\conda.BAT",
                 "conda 24",
                 ["base", "ultralytics"],
             ),
@@ -73,7 +73,7 @@ def test_main_window_detection_sets_install_dir_to_conda_root(qtbot, monkeypatch
 
     window.run_detection()
 
-    assert window.select_page.workspace_edit.text() == r"E:\software\ADeepLearning\Anaconda"
+    assert window.select_page.workspace_edit.text() == r"D:\Apps\Anaconda3"
 
 
 def test_main_window_detection_sets_install_dir_from_condabin_entrypoint(qtbot, monkeypatch):

@@ -1,21 +1,29 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+import sys
 from pathlib import Path
 
 
 ROOT = Path.cwd()
-CONDA_PREFIX = Path(r"E:\software\ADeepLearning\Anaconda\envs\ultralytics")
+CONDA_PREFIX = Path(os.environ.get("CONDA_PREFIX", sys.prefix))
 CONDA_BIN = CONDA_PREFIX / "Library" / "bin"
+
+conda_binaries = [
+    (str(path), ".")
+    for path in (
+        CONDA_BIN / "libssl-3-x64.dll",
+        CONDA_BIN / "libcrypto-3-x64.dll",
+        CONDA_BIN / "liblzma.dll",
+    )
+    if path.exists()
+]
 
 
 a = Analysis(
     [str(ROOT / "main.py")],
     pathex=[str(ROOT)],
-    binaries=[
-        (str(CONDA_BIN / "libssl-3-x64.dll"), "."),
-        (str(CONDA_BIN / "libcrypto-3-x64.dll"), "."),
-        (str(CONDA_BIN / "liblzma.dll"), "."),
-    ],
+    binaries=conda_binaries,
     datas=[
         (str(ROOT / "app/data"), "app/data"),
         (str(ROOT / "app/ui/style.qss"), "app/ui"),

@@ -10,9 +10,9 @@ def test_env_python_builds_windows_env_path():
 
 
 def test_env_python_builds_path_from_library_bin_conda_bat():
-    path = conda_manager.env_python(r"E:\software\ADeepLearning\Anaconda\Library\bin\conda.BAT", "yolo-env")
+    path = conda_manager.env_python(r"D:\Apps\Anaconda3\Library\bin\conda.BAT", "yolo-env")
 
-    assert path == r"E:\software\ADeepLearning\Anaconda\envs\yolo-env\python.exe"
+    assert path == r"D:\Apps\Anaconda3\envs\yolo-env\python.exe"
 
 
 def test_conda_root_supports_common_windows_entrypoints():

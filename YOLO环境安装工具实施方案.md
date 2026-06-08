@@ -2,22 +2,23 @@
 
 ## 目标
 
-本工具面向 Windows 用户，提供一个可双击运行的 YOLO Python 环境安装器。软件专注于环境创建、依赖安装、检测、取消、清理和日志展示。
+本工具面向 Windows 用户，提供一个可双击运行的 YOLO Python 环境安装器。软件专注于环境检测、Conda 准备、环境创建、依赖安装、取消、清理和日志展示。
 
 ## 当前范围
 
 - 检测 Windows、Conda、NVIDIA GPU、CUDA、磁盘空间和当前 Conda 环境。
 - 可一键安装 Miniconda。
-- 可选择 Conda 根目录、环境名称和 Python 版本。
+- 可选择 Conda 安装目录、环境名称和 Python 版本。
 - 可安装 PyTorch、Ultralytics、Jupyter。
 - 可跳过 PyTorch 或 Ultralytics；两个同时跳过时允许继续。
+- 跳过安装前先检测目标环境是否已经安装对应包。
 - 支持取消长时间命令。
 - 支持删除指定 Conda 环境。
 - 支持中文界面、日志、进度条和打包发布。
 
 ## 不包含内容
 
-本工具不再管理任何外部资产、示例推理资源或下载内容。软件只负责安装和维护运行环境。
+本工具不管理模型权重、示例推理资源或外部模型下载内容。软件只负责安装和维护 YOLO 运行环境。
 
 ## 模块结构
 
@@ -62,11 +63,11 @@ app/
 
 ## 发布验证
 
-发布前需运行：
+发布前建议运行：
 
 ```powershell
-E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe -m pytest -q
-E:\software\ADeepLearning\Anaconda\envs\ultralytics\python.exe -m ruff check .
+python -m pytest -q
+python -m ruff check .
 ```
 
 并通过：
