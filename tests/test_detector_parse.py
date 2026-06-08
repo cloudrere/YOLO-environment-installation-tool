@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.core.detector import CondaInfo, GpuInfo, parse_conda_env_list, parse_nvidia_smi
+from app.core.detector import CondaInfo, GpuInfo, parse_conda_env_list, parse_nvidia_smi, windows_display_name
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -37,3 +37,11 @@ def test_parse_conda_env_list_ignores_comments_and_paths():
 
 def test_conda_info_is_plain_dataclass():
     assert CondaInfo(path=None, version=None, envs=[]).envs == []
+
+
+def test_windows_display_name_uses_build_number_for_windows_11():
+    assert windows_display_name("Windows", "10", "10.0.26200") == "Windows 11"
+
+
+def test_windows_display_name_keeps_windows_10_for_old_builds():
+    assert windows_display_name("Windows", "10", "10.0.19045") == "Windows 10"

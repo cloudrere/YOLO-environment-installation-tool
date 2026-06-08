@@ -62,6 +62,26 @@ def parse_conda_env_list(text: str) -> list[str]:
     return envs
 
 
+def windows_display_name(system: str, release: str, version: str) -> str:
+    if system != "Windows":
+        return f"{system} {release}".strip()
+
+    build = _windows_build_number(version)
+    if release == "10" and build is not None and build >= 22000:
+        return "Windows 11"
+    return f"Windows {release}"
+
+
+def _windows_build_number(version: str) -> int | None:
+    parts = version.split(".")
+    if len(parts) < 3:
+        return None
+    try:
+        return int(parts[2])
+    except ValueError:
+        return None
+
+
 def _detect_conda() -> CondaInfo:
     conda = shutil.which("conda")
     if not conda:
@@ -82,12 +102,13 @@ def _detect_gpu() -> GpuInfo | None:
 def detect_all() -> EnvSnapshot:
     usage = shutil.disk_usage(os.path.expanduser("~"))
     system = platform.system()
+    release = platform.release()
+    display_os = windows_display_name(system, release, platform.version())
     return EnvSnapshot(
-        os=f"{system} {platform.release()}",
-        is_windows_supported=system == "Windows" and platform.release() in {"10", "11"},
+        os=display_os,
+        is_windows_supported=system == "Windows" and display_os in {"Windows 10", "Windows 11"},
         conda=_detect_conda(),
         gpu=_detect_gpu(),
         free_disk_gb=round(usage.free / (1024**3), 2),
         mirror_reachable=True,
     )
-
