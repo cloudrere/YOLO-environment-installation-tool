@@ -23,6 +23,9 @@ def test_pyinstaller_spec_contains_gui_entry_and_data_files():
     assert "console=False" in spec
     assert '"torch"' in spec
     assert '"ultralytics"' in spec
+    assert "libssl-3-x64.dll" in spec
+    assert "libcrypto-3-x64.dll" in spec
+    assert "liblzma.dll" in spec
 
 
 def test_release_script_builds_exe_and_checksum():

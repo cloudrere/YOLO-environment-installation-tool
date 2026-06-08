@@ -10,6 +10,7 @@ from app.ui.widgets.status_card import StatusCard
 
 class DetectPage(QWidget):
     next_requested = pyqtSignal()
+    install_conda_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -30,6 +31,9 @@ class DetectPage(QWidget):
         self.conda_envs_label.setWordWrap(True)
         self.detect_button = QPushButton(text.BUTTON_DETECT)
         self.detect_button.setObjectName("detectButton")
+        self.install_conda_button = QPushButton("一键安装 Miniconda")
+        self.install_conda_button.setObjectName("installCondaButton")
+        self.install_conda_button.hide()
         self.next_button = QPushButton(text.BUTTON_NEXT)
         self.next_button.setObjectName("detectNextButton")
         self.next_button.setEnabled(False)
@@ -51,6 +55,7 @@ class DetectPage(QWidget):
         actions = QHBoxLayout()
         actions.addStretch(1)
         actions.addWidget(self.detect_button)
+        actions.addWidget(self.install_conda_button)
         actions.addWidget(self.next_button)
 
         layout = QVBoxLayout(self)
@@ -64,6 +69,7 @@ class DetectPage(QWidget):
         layout.addStretch(1)
 
         self.next_button.clicked.connect(self.next_requested.emit)
+        self.install_conda_button.clicked.connect(self.install_conda_requested.emit)
 
     def set_snapshot(self, snapshot: EnvSnapshot) -> None:
         self.os_card.set_status(snapshot.os, text.STATUS_SUPPORTED if snapshot.is_windows_supported else text.STATUS_UNSUPPORTED)
@@ -71,6 +77,7 @@ class DetectPage(QWidget):
         conda_detail = snapshot.conda.path or text.STATUS_CONDA_WILL_INSTALL
         self.conda_card.set_status(conda_value, conda_detail)
         self.conda_envs_label.setText(", ".join(snapshot.conda.envs) if snapshot.conda.envs else "未发现 Conda 环境")
+        self.install_conda_button.setVisible(not bool(snapshot.conda.path))
         if snapshot.gpu:
             self.gpu_card.set_status(snapshot.gpu.name, f"CUDA {snapshot.gpu.cuda_runtime_max}, {snapshot.gpu.memory_mib} MiB")
         else:

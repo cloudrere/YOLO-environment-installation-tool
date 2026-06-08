@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import json
 import shutil
+import tempfile
 from pathlib import Path
+from urllib import request as urlrequest
 
 from app.core.errors import InstallError
+from app.utils.paths import resource_path
 from app.utils.runner import run
 
 
@@ -12,7 +16,36 @@ def find_existing_conda() -> str | None:
 
 
 def install_miniconda(target_dir: str, on_line=None) -> str:
-    raise InstallError("Miniconda download is not implemented in M1 dry core")
+    target = Path(target_dir)
+    url = _miniconda_installer_url()
+    installer = Path(tempfile.gettempdir()) / "YoloInstaller-Miniconda3-latest-Windows-x86_64.exe"
+    if on_line:
+        on_line(f"正在下载 Miniconda：{url}")
+    urlrequest.urlretrieve(url, str(installer))
+    if on_line:
+        on_line(f"正在安装 Miniconda 到：{target}")
+    result = run(
+        [
+            str(installer),
+            "/InstallationType=JustMe",
+            "/RegisterPython=0",
+            "/S",
+            f"/D={target}",
+        ],
+        on_line=on_line,
+    )
+    if result.returncode != 0:
+        raise InstallError(result.stdout or "Miniconda 安装失败")
+    conda_exe = target / "Scripts" / "conda.exe"
+    if on_line:
+        on_line(f"Miniconda 安装完成：{conda_exe}")
+    return str(conda_exe)
+
+
+def _miniconda_installer_url() -> str:
+    mirrors_path = resource_path("app/data/mirrors.json")
+    data = json.loads(mirrors_path.read_text(encoding="utf-8"))
+    return data["miniconda_installer"]
 
 
 def write_condarc(channels: list[str], backup_dir: str) -> None:

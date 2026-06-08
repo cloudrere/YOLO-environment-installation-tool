@@ -4,12 +4,18 @@ from pathlib import Path
 
 
 ROOT = Path.cwd()
+CONDA_PREFIX = Path(r"E:\software\ADeepLearning\Anaconda\envs\ultralytics")
+CONDA_BIN = CONDA_PREFIX / "Library" / "bin"
 
 
 a = Analysis(
     [str(ROOT / "main.py")],
     pathex=[str(ROOT)],
-    binaries=[],
+    binaries=[
+        (str(CONDA_BIN / "libssl-3-x64.dll"), "."),
+        (str(CONDA_BIN / "libcrypto-3-x64.dll"), "."),
+        (str(CONDA_BIN / "liblzma.dll"), "."),
+    ],
     datas=[
         (str(ROOT / "app/data"), "app/data"),
         (str(ROOT / "app/ui/style.qss"), "app/ui"),

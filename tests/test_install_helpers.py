@@ -33,6 +33,37 @@ def test_create_env_runs_conda_create(monkeypatch):
     assert python == r"C:\Anaconda\envs\yolo-env\python.exe"
 
 
+def test_install_miniconda_downloads_and_runs_silent_installer(monkeypatch, tmp_path):
+    calls = []
+    lines = []
+
+    def fake_urlretrieve(url, filename):
+        calls.append(("download", url, filename))
+        return filename, None
+
+    def fake_run(cmd, **kwargs):
+        calls.append(("run", cmd, kwargs))
+        return CommandResult(0, "installed", 0)
+
+    monkeypatch.setattr(conda_manager.urlrequest, "urlretrieve", fake_urlretrieve)
+    monkeypatch.setattr(conda_manager, "run", fake_run)
+
+    conda_exe = conda_manager.install_miniconda(str(tmp_path / "Miniconda3"), lines.append)
+
+    assert conda_exe == str(tmp_path / "Miniconda3" / "Scripts" / "conda.exe")
+    assert calls[0][0] == "download"
+    assert calls[0][1].endswith("Miniconda3-latest-Windows-x86_64.exe")
+    assert calls[1][1] == [
+        calls[0][2],
+        "/InstallationType=JustMe",
+        "/RegisterPython=0",
+        "/S",
+        f"/D={tmp_path / 'Miniconda3'}",
+    ]
+    assert "正在下载 Miniconda" in lines[0]
+    assert "Miniconda 安装完成" in lines[-1]
+
+
 def test_pip_install_raises_after_failed_attempts(monkeypatch):
     def fake_run(cmd, **kwargs):
         return CommandResult(1, "failed", 0)

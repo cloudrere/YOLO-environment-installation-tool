@@ -205,18 +205,18 @@ QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
   border-color: #2563eb;
 }
 
-#detectButton, #detectNextButton, #cancelInstallButton, #tryPreviewButton, #uninstallEnvButton {
+#detectButton, #installCondaButton, #detectNextButton, #cancelInstallButton, #tryPreviewButton, #uninstallEnvButton {
   min-width: 120px;
 }
 
-#detectButton, #tryPreviewButton {
+#detectButton, #installCondaButton, #tryPreviewButton {
   border-color: #2563eb;
   background: #2563eb;
   color: #ffffff;
   font-weight: 700;
 }
 
-#detectButton:enabled:hover, #tryPreviewButton:enabled:hover {
+#detectButton:enabled:hover, #installCondaButton:enabled:hover, #tryPreviewButton:enabled:hover {
   border-color: #1d4ed8;
   background: #1d4ed8;
 }

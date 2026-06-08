@@ -30,6 +30,26 @@ def test_detect_page_renders_snapshot(qtbot):
     assert page.next_button.isEnabled()
 
 
+def test_detect_page_shows_miniconda_install_when_conda_missing(qtbot):
+    page = DetectPage()
+    qtbot.addWidget(page)
+    missing_conda = EnvSnapshot(
+        os="Windows 11",
+        is_windows_supported=True,
+        conda=CondaInfo(None, None, []),
+        gpu=None,
+        disk_root="D:",
+        free_disk_gb=88.5,
+        mirror_reachable=True,
+    )
+
+    page.set_snapshot(missing_conda)
+
+    assert not page.install_conda_button.isHidden()
+    assert page.install_conda_button.isEnabled()
+    assert page.install_conda_button.text() == "一键安装 Miniconda"
+
+
 def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     page = SelectPage()
     qtbot.addWidget(page)

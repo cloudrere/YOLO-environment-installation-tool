@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PyQt6.QtWidgets import QMainWindow, QTabWidget
+from PyQt6.QtWidgets import QFileDialog, QMainWindow, QTabWidget
 
 from app.core.errors import InstallError
 from app.core.cuda_matcher import choose
-from app.core.conda_manager import remove_env
+from app.core.conda_manager import install_miniconda, remove_env
 from app.core.detector import detect_all
+from app.core.validation import ASCII_INSTALL_DIR
 from app.core.ultralytics_setup import smoke_test
 from app.ui import text
 from app.ui.pages.detect_page import DetectPage
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.tabs)
 
         self.detect_page.detect_button.clicked.connect(self.run_detection)
+        self.detect_page.install_conda_requested.connect(self.install_miniconda)
         self.detect_page.next_requested.connect(lambda: self.tabs.setCurrentWidget(self.select_page))
         self.select_page.install_requested.connect(self.start_install)
         self.install_page.cancel_button.clicked.connect(self.cancel_install)
@@ -55,6 +57,20 @@ class MainWindow(QMainWindow):
         conda_root = conda_install_root(self.snapshot.conda.path)
         if conda_root:
             self.select_page.workspace_edit.setText(conda_root)
+
+    def install_miniconda(self) -> None:
+        target_dir = QFileDialog.getExistingDirectory(self, "选择 Miniconda 安装目录", ASCII_INSTALL_DIR)
+        if not target_dir:
+            return
+        self.tabs.setCurrentWidget(self.install_page)
+        self.install_page.append_log(f"准备安装 Miniconda：{target_dir}")
+        try:
+            conda_exe = install_miniconda(target_dir, self.install_page.append_log)
+        except InstallError as exc:
+            self.install_page.append_log(f"Miniconda 安装失败：{exc}")
+            return
+        self.install_page.append_log(f"Miniconda 安装完成：{conda_exe}")
+        self.run_detection()
 
     def start_install(self, config: dict) -> None:
         if self.snapshot is None:

@@ -63,6 +63,48 @@ def test_main_window_detection_sets_install_dir_to_conda_root(qtbot, monkeypatch
     assert window.select_page.workspace_edit.text() == r"E:\software\ADeepLearning\Anaconda"
 
 
+def test_main_window_installs_miniconda_and_redetects(qtbot, monkeypatch, tmp_path):
+    missing = EnvSnapshot(
+        os="Windows 11",
+        is_windows_supported=True,
+        conda=CondaInfo(None, None, []),
+        gpu=None,
+        disk_root="D:",
+        free_disk_gb=50,
+        mirror_reachable=True,
+    )
+    installed = EnvSnapshot(
+        os="Windows 11",
+        is_windows_supported=True,
+        conda=CondaInfo(str(tmp_path / "Miniconda3" / "Scripts" / "conda.exe"), "conda 24", ["base"]),
+        gpu=None,
+        disk_root="D:",
+        free_disk_gb=50,
+        mirror_reachable=True,
+    )
+    snapshots = [missing, installed]
+    install_calls = []
+    monkeypatch.setattr("app.ui.main_window.detect_all", lambda: snapshots.pop(0))
+    monkeypatch.setattr(
+        "app.ui.main_window.install_miniconda",
+        lambda target, on_line=None: install_calls.append(target) or str(tmp_path / "Miniconda3" / "Scripts" / "conda.exe"),
+    )
+    monkeypatch.setattr(
+        "app.ui.main_window.QFileDialog.getExistingDirectory",
+        lambda *args, **kwargs: str(tmp_path / "Miniconda3"),
+    )
+    window = MainWindow(dry_run=True)
+    qtbot.addWidget(window)
+
+    window.run_detection()
+    window.install_miniconda()
+
+    assert install_calls == [str(tmp_path / "Miniconda3")]
+    assert window.snapshot.conda.path == str(tmp_path / "Miniconda3" / "Scripts" / "conda.exe")
+    assert window.select_page.workspace_edit.text() == str(tmp_path / "Miniconda3")
+    assert "Miniconda 安装完成" in window.install_page.log_view.toPlainText()
+
+
 def test_main_window_preview_action_logs_result(qtbot, monkeypatch):
     monkeypatch.setattr("app.ui.main_window.detect_all", fake_snapshot)
     calls = []
