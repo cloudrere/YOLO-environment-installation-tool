@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QLineEdit,
@@ -40,6 +41,8 @@ class SelectPage(QWidget):
         self.python_version_combo.addItems(["3.10", "3.11"])
         self.workspace_edit = QLineEdit(str(Path.home() / "yolo_workspace"))
         self.workspace_edit.setObjectName("workspaceEdit")
+        self.browse_workspace_button = QPushButton("浏览...")
+        self.browse_workspace_button.setObjectName("browseWorkspaceButton")
         self.path_warning_label = QLineEdit("")
         self.path_warning_label.setObjectName("pathWarningLabel")
         self.path_warning_label.setReadOnly(True)
@@ -53,9 +56,12 @@ class SelectPage(QWidget):
         self._load_models(data_path)
 
         form = QFormLayout()
+        workspace_row = QHBoxLayout()
+        workspace_row.addWidget(self.workspace_edit, 1)
+        workspace_row.addWidget(self.browse_workspace_button)
         form.addRow(text.LABEL_ENVIRONMENT, self.env_name_edit)
         form.addRow("Python 版本", self.python_version_combo)
-        form.addRow(text.LABEL_WORKSPACE, self.workspace_edit)
+        form.addRow(text.LABEL_WORKSPACE, workspace_row)
         form.addRow(text.LABEL_WARNING, self.path_warning_label)
         form.addRow("", self.jupyter_check)
         form.addRow("", self.shortcut_check)
@@ -71,6 +77,7 @@ class SelectPage(QWidget):
 
         self.start_button.clicked.connect(lambda: self.install_requested.emit(self.build_config()))
         self.workspace_edit.textChanged.connect(lambda: self.validate_paths())
+        self.browse_workspace_button.clicked.connect(self.choose_workspace_directory)
 
     def _load_models(self, data_path: str) -> None:
         path = Path(data_path)
@@ -125,6 +132,11 @@ class SelectPage(QWidget):
             "make_shortcut": self.shortcut_check.isChecked(),
             "pip_mirror": "https://pypi.tuna.tsinghua.edu.cn/simple",
         }
+
+    def choose_workspace_directory(self) -> None:
+        directory = QFileDialog.getExistingDirectory(self, "选择安装目录", self.workspace_edit.text().strip())
+        if directory:
+            self.workspace_edit.setText(directory)
 
     def validate_paths(self) -> bool:
         warning = install_path_warning(self.workspace_edit.text())

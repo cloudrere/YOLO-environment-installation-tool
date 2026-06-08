@@ -1,6 +1,7 @@
 from app.core.detector import CondaInfo, EnvSnapshot, GpuInfo
 from app.ui.pages.detect_page import DetectPage
 from app.ui.pages.install_page import InstallPage
+from app.ui.pages import select_page
 from app.ui.pages.select_page import SelectPage
 
 
@@ -52,6 +53,24 @@ def test_select_page_warns_for_non_ascii_workspace(qtbot):
 
     assert "中文" in page.path_warning_label.text()
     assert not page.start_button.isEnabled()
+
+
+def test_select_page_can_choose_workspace_directory(qtbot, monkeypatch, tmp_path):
+    chosen_dir = tmp_path / "manual_workspace"
+
+    monkeypatch.setattr(
+        select_page.QFileDialog,
+        "getExistingDirectory",
+        lambda *args, **kwargs: str(chosen_dir),
+    )
+
+    page = SelectPage()
+    qtbot.addWidget(page)
+
+    page.browse_workspace_button.click()
+
+    assert page.workspace_edit.text() == str(chosen_dir)
+    assert page.build_config()["workspace"] == str(chosen_dir)
 
 
 def test_install_page_tracks_steps_and_log(qtbot):
