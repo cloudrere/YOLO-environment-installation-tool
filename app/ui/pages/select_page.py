@@ -134,6 +134,7 @@ class SelectPage(QWidget):
             "env_name": self.env_name_edit.text().strip() or "yolo-env",
             "python_version": self.python_version_combo.currentText().strip() or "3.10",
             "workspace": self.workspace_edit.text().strip(),
+            "conda_root": self.workspace_edit.text().strip(),
             "weights": self.selected_weights(),
             "install_jupyter": self.jupyter_check.isChecked(),
             "make_shortcut": self.shortcut_check.isChecked(),

@@ -100,6 +100,51 @@ def test_pipeline_uses_conda_from_detection_before_creating_env(monkeypatch, tmp
     assert done == [(True, "")]
 
 
+def test_pipeline_installs_miniconda_from_conda_root_when_no_conda_exists(monkeypatch, tmp_path):
+    snapshot = EnvSnapshot(
+        os="Windows 11",
+        is_windows_supported=True,
+        conda=CondaInfo(None, None, []),
+        gpu=None,
+        disk_root="D:",
+        free_disk_gb=88.5,
+        mirror_reachable=True,
+    )
+    conda_root = tmp_path / "Miniconda3"
+    conda_exe = str(conda_root / "Scripts" / "conda.exe")
+    calls = []
+    monkeypatch.setattr(pipeline.detector, "detect_all", lambda: snapshot)
+    monkeypatch.setattr(pipeline.cuda_matcher, "choose", lambda *args: type("Plan", (), {"__dict__": {"spec": []}})())
+    monkeypatch.setattr(pipeline.conda_manager, "find_existing_conda", lambda: None)
+    monkeypatch.setattr(
+        pipeline.conda_manager,
+        "install_miniconda",
+        lambda target, on_line=None: calls.append(target) or conda_exe,
+    )
+    monkeypatch.setattr(
+        pipeline.conda_manager,
+        "create_env",
+        lambda conda, env, py, on_line=None, cancel_token=None: str(conda_root / "envs" / env / "python.exe"),
+    )
+    for name in ["torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]:
+        monkeypatch.setattr(pipeline.Pipeline, f"_do_{name}", lambda self: None)
+    monkeypatch.setattr(state, "STATE_PATH", tmp_path / "state.json")
+
+    done = []
+    pipe = pipeline.Pipeline(
+        {"env_name": "demo", "python_version": "3.12", "conda_root": str(conda_root), "workspace": str(conda_root)},
+        lambda line: None,
+        lambda step, status: None,
+        lambda ok, msg: done.append((ok, msg)),
+    )
+
+    pipe.run()
+
+    assert calls == [str(conda_root)]
+    assert pipe.conda_exe == conda_exe
+    assert done == [(True, "")]
+
+
 def test_pipeline_cancel_during_env_step_reports_canceled(monkeypatch, tmp_path):
     snapshot = EnvSnapshot(
         os="Windows 11",

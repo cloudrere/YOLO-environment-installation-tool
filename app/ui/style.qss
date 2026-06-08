@@ -205,6 +205,20 @@ QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
   border-color: #2563eb;
 }
 
+QProgressBar {
+  min-height: 12px;
+  border: 1px solid #c7ced9;
+  border-radius: 6px;
+  background: #eef2f7;
+  text-align: center;
+  color: #344054;
+}
+
+QProgressBar::chunk {
+  border-radius: 5px;
+  background: #2563eb;
+}
+
 #detectButton, #installCondaButton, #detectNextButton, #cancelInstallButton, #tryPreviewButton, #uninstallEnvButton {
   min-width: 120px;
 }

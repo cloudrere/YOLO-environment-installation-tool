@@ -4,17 +4,15 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QTabWidget
 
-from app.core.errors import InstallError
 from app.core.cuda_matcher import choose
-from app.core.conda_manager import install_miniconda, remove_env
-from app.core.detector import detect_all
-from app.core.validation import ASCII_INSTALL_DIR
+from app.core.detector import CondaInfo, EnvSnapshot, detect_all
 from app.core.ultralytics_setup import smoke_test
+from app.core.validation import ASCII_INSTALL_DIR
 from app.ui import text
 from app.ui.pages.detect_page import DetectPage
 from app.ui.pages.install_page import InstallPage
 from app.ui.pages.select_page import SelectPage
-from app.ui.workers import InstallWorker
+from app.ui.workers import InstallWorker, MinicondaInstallWorker, RemoveEnvWorker
 from app.utils.paths import resource_path
 
 
@@ -23,6 +21,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.dry_run = dry_run
         self.worker: InstallWorker | None = None
+        self.miniconda_worker: MinicondaInstallWorker | None = None
+        self.remove_env_worker: RemoveEnvWorker | None = None
         self.snapshot = None
         self.current_config: dict = {}
         self.setWindowTitle(text.APP_TITLE)
@@ -64,13 +64,38 @@ class MainWindow(QMainWindow):
             return
         self.tabs.setCurrentWidget(self.install_page)
         self.install_page.append_log(f"准备安装 Miniconda：{target_dir}")
-        try:
-            conda_exe = install_miniconda(target_dir, self.install_page.append_log)
-        except InstallError as exc:
-            self.install_page.append_log(f"Miniconda 安装失败：{exc}")
+        self.install_page.set_miniconda_installing(True)
+        self.miniconda_worker = MinicondaInstallWorker(target_dir)
+        self.miniconda_worker.line_emitted.connect(self.install_page.append_log)
+        self.miniconda_worker.finished.connect(self._finish_miniconda_install)
+        self.miniconda_worker.start()
+
+    def _finish_miniconda_install(self, ok: bool, message: str) -> None:
+        self.install_page.set_miniconda_installing(False)
+        if not ok:
+            self.install_page.append_log(f"Miniconda 安装失败：{message}")
             return
-        self.install_page.append_log(f"Miniconda 安装完成：{conda_exe}")
-        self.run_detection()
+        self.install_page.append_log(f"Miniconda 安装完成：{message}")
+        self._set_conda_after_install(message)
+
+    def _set_conda_after_install(self, conda_exe: str) -> None:
+        conda_info = CondaInfo(conda_exe, None, ["base"])
+        if self.snapshot is None:
+            self.snapshot = EnvSnapshot("Windows", True, conda_info, None, Path(conda_exe).drive, 0, True)
+        else:
+            self.snapshot = EnvSnapshot(
+                self.snapshot.os,
+                self.snapshot.is_windows_supported,
+                conda_info,
+                self.snapshot.gpu,
+                self.snapshot.disk_root,
+                self.snapshot.free_disk_gb,
+                self.snapshot.mirror_reachable,
+            )
+        self.detect_page.set_snapshot(self.snapshot)
+        conda_root = conda_install_root(conda_exe)
+        if conda_root:
+            self.select_page.workspace_edit.setText(conda_root)
 
     def start_install(self, config: dict) -> None:
         if self.snapshot is None:
@@ -107,12 +132,18 @@ class MainWindow(QMainWindow):
         config = self.current_config
         env_name = self.install_page.uninstall_env_edit.text().strip() or config.get("env_name", "yolo-env")
         conda_exe = config.get("conda_exe") or (self.snapshot.conda.path if self.snapshot and self.snapshot.conda.path else "conda")
-        try:
-            remove_env(conda_exe, env_name)
-        except InstallError as exc:
-            self.install_page.append_log(f"卸载失败：{exc}")
+        self.install_page.set_uninstall_running(True)
+        self.remove_env_worker = RemoveEnvWorker(conda_exe, env_name)
+        self.remove_env_worker.line_emitted.connect(self.install_page.append_log)
+        self.remove_env_worker.finished.connect(self._finish_remove_env)
+        self.remove_env_worker.start()
+
+    def _finish_remove_env(self, ok: bool, message: str) -> None:
+        self.install_page.set_uninstall_running(False)
+        if not ok:
+            self.install_page.append_log(f"卸载失败：{message}")
             return
-        self.install_page.append_log(f"{text.ENV_REMOVED}：{env_name}")
+        self.install_page.append_log(f"{text.ENV_REMOVED}：{message}")
 
 
 def conda_install_root(conda_exe: str | None) -> str | None:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PyQt6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QVBoxLayout, QWidget
 
 from app.core.pipeline import Pipeline
 from app.ui import text
@@ -19,6 +19,14 @@ class InstallPage(QWidget):
         self.summary_label.setWordWrap(True)
         self.log_view = LogView()
         self.log_view.setObjectName("installLogView")
+        self.install_progress = QProgressBar()
+        self.install_progress.setObjectName("installProgress")
+        self.install_progress.setRange(0, 100)
+        self.install_progress.setValue(0)
+        self.conda_progress = QProgressBar()
+        self.conda_progress.setObjectName("condaProgress")
+        self.conda_progress.setRange(0, 0)
+        self.conda_progress.hide()
         self.cancel_button = QPushButton(text.BUTTON_CANCEL)
         self.cancel_button.setObjectName("cancelInstallButton")
         self.try_button = QPushButton(text.BUTTON_TRY)
@@ -30,6 +38,10 @@ class InstallPage(QWidget):
         self.uninstall_button = QPushButton(text.BUTTON_UNINSTALL)
         self.uninstall_button.setObjectName("uninstallEnvButton")
         self.uninstall_button.setEnabled(True)
+        self.uninstall_progress = QProgressBar()
+        self.uninstall_progress.setObjectName("uninstallProgress")
+        self.uninstall_progress.setRange(0, 0)
+        self.uninstall_progress.hide()
         self.uninstall_env_edit.textChanged.connect(self._sync_uninstall_button)
 
         steps_panel = QFrame()
@@ -59,6 +71,8 @@ class InstallPage(QWidget):
         self.log_title_label = QLabel("安装日志")
         self.log_title_label.setObjectName("sectionTitleLabel")
         log_layout.addWidget(self.log_title_label)
+        log_layout.addWidget(self.install_progress)
+        log_layout.addWidget(self.conda_progress)
         log_layout.addWidget(self.log_view, 1)
 
         actions = QHBoxLayout()
@@ -76,6 +90,7 @@ class InstallPage(QWidget):
         uninstall_layout.addWidget(self.uninstall_title_label)
         uninstall_layout.addWidget(self.uninstall_env_edit, 1)
         uninstall_layout.addWidget(self.uninstall_button)
+        uninstall_layout.addWidget(self.uninstall_progress)
 
         layout.addWidget(steps_panel)
         layout.addWidget(log_panel, 1)
@@ -88,6 +103,7 @@ class InstallPage(QWidget):
             self.step_labels[step].setProperty("stepStatus", status)
             self.step_labels[step].style().unpolish(self.step_labels[step])
             self.step_labels[step].style().polish(self.step_labels[step])
+            self._sync_install_progress()
 
     def append_log(self, line: str) -> None:
         self.log_view.append_line(line)
@@ -96,7 +112,25 @@ class InstallPage(QWidget):
         if message:
             self.append_log(message)
         self.try_button.setEnabled(ok)
+        if ok:
+            self.install_progress.setValue(100)
         self._sync_uninstall_button()
 
     def _sync_uninstall_button(self) -> None:
         self.uninstall_button.setEnabled(bool(self.uninstall_env_edit.text().strip()))
+
+    def set_miniconda_installing(self, running: bool) -> None:
+        self.conda_progress.setVisible(running)
+
+    def set_uninstall_running(self, running: bool) -> None:
+        self.uninstall_progress.setVisible(running)
+        self.uninstall_button.setEnabled(not running and bool(self.uninstall_env_edit.text().strip()))
+
+    def _sync_install_progress(self) -> None:
+        total = len(Pipeline.STEPS)
+        completed = sum(1 for label in self.step_labels.values() if label.property("stepStatus") == "ok")
+        running = any(label.property("stepStatus") == "running" for label in self.step_labels.values())
+        value = int((completed / total) * 100)
+        if running:
+            value = max(value, int(((completed + 0.35) / total) * 100))
+        self.install_progress.setValue(min(value, 100))

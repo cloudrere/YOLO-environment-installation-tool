@@ -68,7 +68,10 @@ class Pipeline:
         detected_conda = self.snapshot.conda.path if self.snapshot and self.snapshot.conda.path else None
         self.conda_exe = self.config.get("conda_exe") or detected_conda or conda_manager.find_existing_conda()
         if not self.conda_exe:
-            self.conda_exe = conda_manager.install_miniconda(self.config["install_dir"], self.on_line)
+            conda_root = self.config.get("conda_root") or self.config.get("install_dir") or self.config.get("workspace")
+            if not conda_root:
+                raise KeyError("conda_root")
+            self.conda_exe = conda_manager.install_miniconda(conda_root, self.on_line)
 
     def _do_env(self) -> None:
         if not self.python_exe:

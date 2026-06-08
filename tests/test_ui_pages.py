@@ -75,6 +75,7 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     assert config["env_name"] == "yolo-env"
     assert config["python_version"] == "3.12"
     assert config["workspace"] == str(tmp_path)
+    assert config["conda_root"] == str(tmp_path)
 
 
 def test_select_page_uses_split_install_layout(qtbot):
@@ -142,6 +143,8 @@ def test_install_page_tracks_steps_and_log(qtbot):
     assert page.step_labels["detect"].text().endswith("运行中")
     assert "hello" in page.log_view.toPlainText()
     assert page.try_button.isEnabled()
+    assert page.install_progress.value() > 0
+    assert page.install_progress.maximum() == 100
 
 
 def test_install_page_exposes_uninstall_button(qtbot):
@@ -151,3 +154,24 @@ def test_install_page_exposes_uninstall_button(qtbot):
     assert page.uninstall_env_edit.text() == "yolo-env"
     assert page.uninstall_button.text() == "卸载环境"
     assert page.uninstall_button.isEnabled()
+    assert page.uninstall_progress.isHidden()
+
+
+def test_install_page_shows_indeterminate_progress_for_miniconda_and_uninstall(qtbot):
+    page = InstallPage()
+    qtbot.addWidget(page)
+
+    page.set_miniconda_installing(True)
+    assert not page.conda_progress.isHidden()
+    assert page.conda_progress.minimum() == 0
+    assert page.conda_progress.maximum() == 0
+
+    page.set_uninstall_running(True)
+    assert not page.uninstall_progress.isHidden()
+    assert page.uninstall_progress.minimum() == 0
+    assert page.uninstall_progress.maximum() == 0
+
+    page.set_miniconda_installing(False)
+    page.set_uninstall_running(False)
+    assert page.conda_progress.isHidden()
+    assert page.uninstall_progress.isHidden()
