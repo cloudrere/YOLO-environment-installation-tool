@@ -60,7 +60,7 @@ class SelectPage(QWidget):
         self.python_version_combo = QComboBox()
         self.python_version_combo.setObjectName("pythonVersionCombo")
         self.python_version_combo.setEditable(True)
-        self.python_version_combo.addItems(["3.10", "3.11"])
+        self.python_version_combo.addItems(["3.10", "3.11", "3.12"])
         self.workspace_edit = QLineEdit(str(Path.home() / "yolo_workspace"))
         self.workspace_edit.setObjectName("workspaceEdit")
         self.browse_workspace_button = QPushButton("浏览...")

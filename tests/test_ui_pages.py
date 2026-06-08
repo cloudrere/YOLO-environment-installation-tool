@@ -35,6 +35,11 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     page.workspace_edit.setText(str(tmp_path))
     assert page.python_version_combo.currentText() == "3.10"
     assert page.python_version_combo.isEditable()
+    assert [page.python_version_combo.itemText(i) for i in range(page.python_version_combo.count())] == [
+        "3.10",
+        "3.11",
+        "3.12",
+    ]
     assert page.build_config()["weights"] == []
     assert page.start_button.isEnabled()
     assert page.model_cards == []
