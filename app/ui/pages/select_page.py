@@ -6,6 +6,7 @@ from pathlib import Path
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QFormLayout,
     QHBoxLayout,
     QLineEdit,
@@ -33,6 +34,9 @@ class SelectPage(QWidget):
         self.tabs.setObjectName("modelTabs")
         self.env_name_edit = QLineEdit("yolo-env")
         self.env_name_edit.setObjectName("envNameEdit")
+        self.python_version_combo = QComboBox()
+        self.python_version_combo.setObjectName("pythonVersionCombo")
+        self.python_version_combo.addItems(["3.10", "3.11"])
         self.workspace_edit = QLineEdit(str(Path.home() / "yolo_workspace"))
         self.workspace_edit.setObjectName("workspaceEdit")
         self.path_warning_label = QLineEdit("")
@@ -49,6 +53,7 @@ class SelectPage(QWidget):
 
         form = QFormLayout()
         form.addRow(text.LABEL_ENVIRONMENT, self.env_name_edit)
+        form.addRow("Python 版本", self.python_version_combo)
         form.addRow(text.LABEL_WORKSPACE, self.workspace_edit)
         form.addRow(text.LABEL_WARNING, self.path_warning_label)
         form.addRow("", self.jupyter_check)
@@ -112,7 +117,7 @@ class SelectPage(QWidget):
     def build_config(self) -> dict:
         return {
             "env_name": self.env_name_edit.text().strip() or "yolo-env",
-            "python_version": "3.10",
+            "python_version": self.python_version_combo.currentText(),
             "workspace": self.workspace_edit.text().strip(),
             "weights": self.selected_weights(),
             "install_jupyter": self.jupyter_check.isChecked(),
