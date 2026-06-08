@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from app.core.pipeline import Pipeline
 from app.ui import text
@@ -12,27 +12,83 @@ class InstallPage(QWidget):
         super().__init__(parent)
         self.setObjectName("installPage")
         self.step_labels: dict[str, QLabel] = {}
+        self.title_label = QLabel("安装进度")
+        self.title_label.setObjectName("pageTitleLabel")
+        self.summary_label = QLabel("安装命令会按步骤执行，日志会实时显示在下方。")
+        self.summary_label.setObjectName("pageSummaryLabel")
+        self.summary_label.setWordWrap(True)
         self.log_view = LogView()
+        self.log_view.setObjectName("installLogView")
         self.cancel_button = QPushButton(text.BUTTON_CANCEL)
+        self.cancel_button.setObjectName("cancelInstallButton")
         self.try_button = QPushButton(text.BUTTON_TRY)
+        self.try_button.setObjectName("tryPreviewButton")
         self.try_button.setEnabled(False)
+        self.uninstall_env_edit = QLineEdit("yolo-env")
+        self.uninstall_env_edit.setObjectName("uninstallEnvEdit")
+        self.uninstall_env_edit.setPlaceholderText("输入要删除的环境名")
         self.uninstall_button = QPushButton(text.BUTTON_UNINSTALL)
+        self.uninstall_button.setObjectName("uninstallEnvButton")
         self.uninstall_button.setEnabled(False)
+        self._uninstall_available = False
+        self.uninstall_env_edit.textChanged.connect(self._sync_uninstall_button)
+
+        steps_panel = QFrame()
+        steps_panel.setObjectName("installStepsPanel")
+        steps_layout = QGridLayout(steps_panel)
+        steps_layout.setContentsMargins(16, 14, 16, 14)
+        steps_layout.setHorizontalSpacing(12)
+        steps_layout.setVerticalSpacing(10)
 
         layout = QVBoxLayout(self)
-        for step in Pipeline.STEPS:
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(14)
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.summary_label)
+        for index, step in enumerate(Pipeline.STEPS):
             label = QLabel(f"{text.STEP_NAMES.get(step, step)}：{text.STEP_STATUS['pending']}")
             label.setObjectName(f"step_{step}")
+            label.setProperty("stepStatus", "pending")
             self.step_labels[step] = label
-            layout.addWidget(label)
-        layout.addWidget(self.log_view, 1)
-        layout.addWidget(self.cancel_button)
-        layout.addWidget(self.try_button)
-        layout.addWidget(self.uninstall_button)
+            steps_layout.addWidget(label, index // 3, index % 3)
+
+        log_panel = QFrame()
+        log_panel.setObjectName("installLogPanel")
+        log_layout = QVBoxLayout(log_panel)
+        log_layout.setContentsMargins(16, 14, 16, 14)
+        log_layout.setSpacing(10)
+        self.log_title_label = QLabel("安装日志")
+        self.log_title_label.setObjectName("sectionTitleLabel")
+        log_layout.addWidget(self.log_title_label)
+        log_layout.addWidget(self.log_view, 1)
+
+        actions = QHBoxLayout()
+        actions.addWidget(self.cancel_button)
+        actions.addStretch(1)
+        actions.addWidget(self.try_button)
+
+        uninstall_panel = QFrame()
+        uninstall_panel.setObjectName("uninstallPanel")
+        uninstall_layout = QHBoxLayout(uninstall_panel)
+        uninstall_layout.setContentsMargins(16, 12, 16, 12)
+        uninstall_layout.setSpacing(10)
+        self.uninstall_title_label = QLabel("删除 Conda 环境")
+        self.uninstall_title_label.setObjectName("sectionTitleLabel")
+        uninstall_layout.addWidget(self.uninstall_title_label)
+        uninstall_layout.addWidget(self.uninstall_env_edit, 1)
+        uninstall_layout.addWidget(self.uninstall_button)
+
+        layout.addWidget(steps_panel)
+        layout.addWidget(log_panel, 1)
+        layout.addLayout(actions)
+        layout.addWidget(uninstall_panel)
 
     def set_step(self, step: str, status: str) -> None:
         if step in self.step_labels:
             self.step_labels[step].setText(f"{text.STEP_NAMES.get(step, step)}：{text.STEP_STATUS.get(status, status)}")
+            self.step_labels[step].setProperty("stepStatus", status)
+            self.step_labels[step].style().unpolish(self.step_labels[step])
+            self.step_labels[step].style().polish(self.step_labels[step])
 
     def append_log(self, line: str) -> None:
         self.log_view.append_line(line)
@@ -41,4 +97,8 @@ class InstallPage(QWidget):
         if message:
             self.append_log(message)
         self.try_button.setEnabled(ok)
-        self.uninstall_button.setEnabled(ok)
+        self._uninstall_available = ok
+        self._sync_uninstall_button()
+
+    def _sync_uninstall_button(self) -> None:
+        self.uninstall_button.setEnabled(self._uninstall_available and bool(self.uninstall_env_edit.text().strip()))

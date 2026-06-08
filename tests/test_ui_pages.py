@@ -9,7 +9,7 @@ def snapshot():
     return EnvSnapshot(
         os="Windows 10",
         is_windows_supported=True,
-        conda=CondaInfo("conda.exe", "conda 24", ["base"]),
+        conda=CondaInfo("conda.exe", "conda 24", ["base", "ultralytics", "yolo"]),
         gpu=GpuInfo("RTX 4070", "550.78", 12282, "12.4"),
         disk_root="D:",
         free_disk_gb=88.5,
@@ -26,6 +26,7 @@ def test_detect_page_renders_snapshot(qtbot):
     assert page.os_card.value_label.text() == "Windows 10"
     assert page.gpu_card.value_label.text() == "RTX 4070"
     assert page.disk_card.value_label.text() == "D: 88.5 GB 可用"
+    assert page.conda_envs_label.text() == "base, ultralytics, yolo"
     assert page.next_button.isEnabled()
 
 
@@ -127,5 +128,6 @@ def test_install_page_exposes_uninstall_button(qtbot):
     page = InstallPage()
     qtbot.addWidget(page)
 
+    assert page.uninstall_env_edit.text() == "yolo-env"
     assert page.uninstall_button.text() == "卸载环境"
     assert not page.uninstall_button.isEnabled()

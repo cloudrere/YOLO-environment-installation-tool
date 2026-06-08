@@ -36,6 +36,41 @@ QLabel {
   background: #eef2f7;
 }
 
+#detectPage, #installPage {
+  background: #eef2f7;
+}
+
+#pageTitleLabel {
+  color: #101828;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+#pageSummaryLabel {
+  color: #475467;
+  font-size: 14px;
+}
+
+#sectionTitleLabel {
+  color: #344054;
+  font-weight: 700;
+}
+
+#condaEnvPanel, #installStepsPanel, #installLogPanel, #uninstallPanel {
+  border: 1px solid #d8dde6;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+#condaEnvsLabel {
+  min-height: 36px;
+  padding: 10px 12px;
+  border: 1px solid #dbe3ef;
+  border-radius: 6px;
+  color: #1d4ed8;
+  background: #f8fafc;
+}
+
 #selectSidePanel {
   min-width: 250px;
   max-width: 290px;
@@ -141,7 +176,7 @@ QLabel {
 
 #statusCard {
   border: 1px solid #d8dde6;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #ffffff;
 }
 
@@ -151,7 +186,7 @@ QLabel {
 }
 
 #statusCardValue {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
 }
 
@@ -168,4 +203,77 @@ QLineEdit, QComboBox, QPlainTextEdit {
 
 QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
   border-color: #2563eb;
+}
+
+#detectButton, #detectNextButton, #cancelInstallButton, #tryPreviewButton, #uninstallEnvButton {
+  min-width: 120px;
+}
+
+#detectButton, #tryPreviewButton {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+#detectButton:enabled:hover, #tryPreviewButton:enabled:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+}
+
+#cancelInstallButton {
+  border-color: #d0d5dd;
+  background: #ffffff;
+}
+
+#uninstallEnvButton {
+  border-color: #dc2626;
+  background: #fff1f2;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+#uninstallEnvButton:enabled:hover {
+  border-color: #b91c1c;
+  background: #ffe4e6;
+}
+
+#installLogView {
+  min-height: 230px;
+  font-family: Consolas, "Microsoft YaHei UI", monospace;
+  background: #0f172a;
+  color: #e5e7eb;
+  border-color: #111827;
+}
+
+QLabel[stepStatus="pending"] {
+  padding: 10px 12px;
+  border: 1px solid #dbe3ef;
+  border-radius: 6px;
+  color: #475467;
+  background: #f8fafc;
+}
+
+QLabel[stepStatus="running"] {
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+QLabel[stepStatus="ok"] {
+  padding: 10px 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  color: #166534;
+  background: #f0fdf4;
+}
+
+QLabel[stepStatus="fail"] {
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #b91c1c;
+  background: #fef2f2;
 }

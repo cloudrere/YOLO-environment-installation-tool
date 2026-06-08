@@ -93,9 +93,10 @@ def test_main_window_uninstall_action_removes_env(qtbot, monkeypatch):
     window = MainWindow(dry_run=True)
     qtbot.addWidget(window)
     window.current_config = {"conda_exe": "conda.exe", "env_name": "demo"}
+    window.install_page.uninstall_env_edit.setText("custom-env")
     monkeypatch.setattr("app.ui.main_window.remove_env", lambda conda, env: calls.append((conda, env)))
 
     window.uninstall_environment()
 
-    assert calls == [("conda.exe", "demo")]
+    assert calls == [("conda.exe", "custom-env")]
     assert "环境已卸载" in window.install_page.log_view.toPlainText()

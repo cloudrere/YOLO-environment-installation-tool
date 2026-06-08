@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
         if self.snapshot.conda.path:
             config["conda_exe"] = self.snapshot.conda.path
         self.current_config = config
+        self.install_page.uninstall_env_edit.setText(config.get("env_name", "yolo-env"))
         self.tabs.setCurrentWidget(self.install_page)
         self.worker = InstallWorker(config, dry_run=self.dry_run)
         self.worker.line_emitted.connect(self.install_page.append_log)
@@ -82,5 +83,6 @@ class MainWindow(QMainWindow):
 
     def uninstall_environment(self) -> None:
         config = self.current_config
-        remove_env(config.get("conda_exe", "conda"), config.get("env_name", "yolo-env"))
-        self.install_page.append_log(text.ENV_REMOVED)
+        env_name = self.install_page.uninstall_env_edit.text().strip() or config.get("env_name", "yolo-env")
+        remove_env(config.get("conda_exe", "conda"), env_name)
+        self.install_page.append_log(f"{text.ENV_REMOVED}：{env_name}")
