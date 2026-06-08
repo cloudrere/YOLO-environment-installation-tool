@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
 )
 
 from app.ui.widgets.model_card import ModelCard
-from app.core.validation import install_path_warning
+from app.core.validation import install_path_notice, install_path_warning
 from app.ui import text
 from app.utils.paths import resource_path
 
@@ -147,6 +147,6 @@ class SelectPage(QWidget):
 
     def validate_paths(self) -> bool:
         warning = install_path_warning(self.workspace_edit.text())
-        self.path_warning_label.setText(warning)
+        self.path_warning_label.setText(warning or install_path_notice(self.workspace_edit.text()))
         self.start_button.setEnabled(not warning)
         return not warning

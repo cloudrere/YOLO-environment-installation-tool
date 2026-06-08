@@ -60,6 +60,17 @@ def test_select_page_warns_for_non_ascii_workspace(qtbot):
     assert not page.start_button.isEnabled()
 
 
+def test_select_page_suggests_non_c_drive_without_blocking(qtbot):
+    page = SelectPage()
+    qtbot.addWidget(page)
+
+    page.workspace_edit.setText(r"C:\YoloInstaller\workspace")
+    page.validate_paths()
+
+    assert "C 盘" in page.path_warning_label.text()
+    assert page.start_button.isEnabled()
+
+
 def test_select_page_can_choose_workspace_directory(qtbot, monkeypatch, tmp_path):
     chosen_dir = tmp_path / "manual_workspace"
 

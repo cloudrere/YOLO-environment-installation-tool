@@ -1,4 +1,4 @@
-from app.core.validation import has_non_ascii, install_path_warning, safe_default_install_dir
+from app.core.validation import has_non_ascii, install_path_notice, install_path_warning, safe_default_install_dir
 
 
 def test_has_non_ascii_detects_chinese_path():
@@ -19,3 +19,11 @@ def test_install_path_warning_explains_fallback():
 
 def test_install_path_warning_empty_for_ascii_path():
     assert install_path_warning(r"C:\YoloInstaller\miniconda3") == ""
+
+
+def test_install_path_notice_suggests_non_c_drive():
+    notice = install_path_notice(r"C:\YoloInstaller\workspace")
+
+    assert "不建议安装到 C 盘" in notice
+    assert "D:\\YoloWorkspace" in notice
+    assert install_path_notice(r"D:\YoloWorkspace") == ""
