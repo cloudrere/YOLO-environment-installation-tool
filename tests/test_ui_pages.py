@@ -31,14 +31,15 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     qtbot.addWidget(page)
     page.workspace_edit.setText(str(tmp_path))
     assert page.python_version_combo.currentText() == "3.10"
+    assert page.python_version_combo.isEditable()
 
-    page.python_version_combo.setCurrentText("3.11")
+    page.python_version_combo.setEditText("3.12")
     page.select_weight("yolov8n.pt")
     config = page.build_config()
 
     assert "yolov8n.pt" in config["weights"]
     assert config["env_name"] == "yolo-env"
-    assert config["python_version"] == "3.11"
+    assert config["python_version"] == "3.12"
     assert config["workspace"] == str(tmp_path)
 
 

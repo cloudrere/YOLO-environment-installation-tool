@@ -36,6 +36,7 @@ class SelectPage(QWidget):
         self.env_name_edit.setObjectName("envNameEdit")
         self.python_version_combo = QComboBox()
         self.python_version_combo.setObjectName("pythonVersionCombo")
+        self.python_version_combo.setEditable(True)
         self.python_version_combo.addItems(["3.10", "3.11"])
         self.workspace_edit = QLineEdit(str(Path.home() / "yolo_workspace"))
         self.workspace_edit.setObjectName("workspaceEdit")
@@ -117,7 +118,7 @@ class SelectPage(QWidget):
     def build_config(self) -> dict:
         return {
             "env_name": self.env_name_edit.text().strip() or "yolo-env",
-            "python_version": self.python_version_combo.currentText(),
+            "python_version": self.python_version_combo.currentText().strip() or "3.10",
             "workspace": self.workspace_edit.text().strip(),
             "weights": self.selected_weights(),
             "install_jupyter": self.jupyter_check.isChecked(),
