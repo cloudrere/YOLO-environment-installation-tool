@@ -92,6 +92,7 @@ class Pipeline:
             extra_index_url=plan.get("extra_index_url"),
             on_line=self.on_line,
             cancel_token=self.cancel_token,
+            allow_fallback_indexes=plan.get("mode") != "gpu",
         )
 
     def _do_ultralytics(self) -> None:

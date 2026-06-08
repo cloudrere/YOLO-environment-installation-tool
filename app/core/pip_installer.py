@@ -18,9 +18,12 @@ def pip_install(
     on_line=None,
     cancel_token=None,
     mirrors_path: str = "app/data/mirrors.json",
+    allow_fallback_indexes: bool = True,
 ) -> None:
     last_output = ""
-    indexes = [index_url, *_fallback_indexes(mirrors_path, index_url)]
+    indexes = [index_url]
+    if allow_fallback_indexes:
+        indexes.extend(_fallback_indexes(mirrors_path, index_url))
     for attempt in range(retries):
         current_index = indexes[min(attempt, len(indexes) - 1)]
         cmd = [python_exe, "-m", "pip", "install", "-i", current_index]

@@ -18,11 +18,15 @@ def test_choose_cu124_for_cuda_12_6():
 
     assert plan.mode == "gpu"
     assert plan.cuda_tag == "cu124"
-    assert plan.spec[0] == "torch==2.5.1"
+    assert plan.spec[0] == "torch==2.5.1+cu124"
 
 
 def test_choose_cu124_for_cuda_12_4():
-    assert choose(gpu("12.4"), TABLE).cuda_tag == "cu124"
+    plan = choose(gpu("12.4"), TABLE)
+
+    assert plan.cuda_tag == "cu124"
+    assert plan.index_url == "https://download.pytorch.org/whl/cu124"
+    assert plan.spec[0] == "torch==2.5.1+cu124"
 
 
 def test_choose_cu121_for_cuda_12_1():

@@ -145,6 +145,30 @@ def test_pipeline_installs_miniconda_from_conda_root_when_no_conda_exists(monkey
     assert done == [(True, "")]
 
 
+def test_pipeline_disables_pip_fallback_for_gpu_torch_plan(monkeypatch):
+    calls = []
+    pipe = pipeline.Pipeline(
+        {
+            "torch_plan": {
+                "mode": "gpu",
+                "spec": ["torch==2.5.1+cu124"],
+                "index_url": "https://download.pytorch.org/whl/cu124",
+                "extra_index_url": None,
+            },
+            "python_exe": "python.exe",
+        },
+        lambda line: None,
+        lambda step, status: None,
+        lambda ok, msg: None,
+    )
+
+    monkeypatch.setattr(pipeline.pip_installer, "pip_install", lambda *args, **kwargs: calls.append((args, kwargs)))
+
+    pipe._do_torch()
+
+    assert calls[0][1]["allow_fallback_indexes"] is False
+
+
 def test_pipeline_cancel_during_env_step_reports_canceled(monkeypatch, tmp_path):
     snapshot = EnvSnapshot(
         os="Windows 11",

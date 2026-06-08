@@ -150,6 +150,39 @@ def test_pip_install_switches_to_fallback_mirrors(monkeypatch, tmp_path):
     assert calls[1][5] == "https://fallback.example/simple"
 
 
+def test_pip_install_can_disable_fallback_mirrors(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return CommandResult(1, "no matching distribution", 0)
+
+    mirrors = tmp_path / "mirrors.json"
+    mirrors.write_text(
+        '{"pip": [{"name": "Fallback", "url": "https://fallback.example/simple"}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(pip_installer, "run", fake_run)
+
+    try:
+        pip_installer.pip_install(
+            "python.exe",
+            ["torch==2.5.1+cu124"],
+            index_url="https://download.pytorch.org/whl/cu124",
+            retries=2,
+            mirrors_path=str(mirrors),
+            allow_fallback_indexes=False,
+        )
+    except InstallError:
+        pass
+    else:
+        raise AssertionError("InstallError not raised")
+
+    assert len(calls) == 2
+    assert all("https://download.pytorch.org/whl/cu124" in call for call in calls)
+    assert all("https://fallback.example/simple" not in call for call in calls)
+
+
 def test_install_jupyter_invokes_pip(monkeypatch):
     calls = []
     monkeypatch.setattr(jupyter_installer, "pip_install", lambda *args, **kwargs: calls.append((args, kwargs)))
