@@ -60,7 +60,13 @@ def write_condarc(channels: list[str], backup_dir: str) -> None:
 
 def env_python(conda_exe: str, env_name: str) -> str:
     conda_path = Path(conda_exe)
-    root = conda_path.parent.parent if conda_path.parent.name.lower() == "scripts" else conda_path.parent
+    parts = [part.lower() for part in conda_path.parts]
+    if len(parts) >= 3 and parts[-3:] == ["library", "bin", conda_path.name.lower()]:
+        root = conda_path.parents[2]
+    elif conda_path.parent.name.lower() == "scripts":
+        root = conda_path.parent.parent
+    else:
+        root = conda_path.parent
     return str(root / "envs" / env_name / "python.exe")
 
 
