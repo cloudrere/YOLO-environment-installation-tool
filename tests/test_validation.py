@@ -13,7 +13,7 @@ def test_safe_default_install_dir_uses_ascii_fallback_for_chinese_home():
 def test_install_path_warning_explains_fallback():
     warning = install_path_warning(r"C:\Users\用户\miniconda3")
 
-    assert "non-ASCII" in warning
+    assert "中文" in warning
     assert r"C:\YoloInstaller\miniconda3" in warning
 
 

@@ -6,6 +6,7 @@ from app.core.cuda_matcher import choose
 from app.core.conda_manager import remove_env
 from app.core.detector import detect_all
 from app.core.ultralytics_setup import smoke_test
+from app.ui import text
 from app.ui.pages.detect_page import DetectPage
 from app.ui.pages.install_page import InstallPage
 from app.ui.pages.select_page import SelectPage
@@ -20,7 +21,7 @@ class MainWindow(QMainWindow):
         self.worker: InstallWorker | None = None
         self.snapshot = None
         self.current_config: dict = {}
-        self.setWindowTitle("YOLO Installer")
+        self.setWindowTitle(text.APP_TITLE)
         self.resize(980, 680)
 
         self.tabs = QTabWidget()
@@ -28,9 +29,9 @@ class MainWindow(QMainWindow):
         self.detect_page = DetectPage()
         self.select_page = SelectPage()
         self.install_page = InstallPage()
-        self.tabs.addTab(self.detect_page, "Environment")
-        self.tabs.addTab(self.select_page, "Models")
-        self.tabs.addTab(self.install_page, "Install")
+        self.tabs.addTab(self.detect_page, text.TAB_ENVIRONMENT)
+        self.tabs.addTab(self.select_page, text.TAB_MODELS)
+        self.tabs.addTab(self.install_page, text.TAB_INSTALL)
         self.setCentralWidget(self.tabs)
 
         self.detect_page.detect_button.clicked.connect(self.run_detection)
@@ -75,9 +76,9 @@ class MainWindow(QMainWindow):
             config.get("smoke_image", "assets/bus.jpg"),
             config.get("smoke_output", "result.jpg"),
         )
-        self.install_page.append_log("Preview succeeded" if ok else "Preview failed")
+        self.install_page.append_log(text.PREVIEW_OK if ok else text.PREVIEW_FAILED)
 
     def uninstall_environment(self) -> None:
         config = self.current_config
         remove_env(config.get("conda_exe", "conda"), config.get("env_name", "yolo-env"))
-        self.install_page.append_log("Environment removed")
+        self.install_page.append_log(text.ENV_REMOVED)

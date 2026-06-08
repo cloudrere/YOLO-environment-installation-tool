@@ -7,6 +7,9 @@ from app.core.state import InstallState
 from app.utils.paths import resource_path
 
 
+SHORTCUT_DEFERRED_MESSAGE = "快捷方式创建将在后续版本完善"
+
+
 class Pipeline:
     STEPS = ["detect", "conda", "env", "torch", "ultralytics", "weights", "jupyter", "smoke", "shortcut"]
 
@@ -112,4 +115,4 @@ class Pipeline:
 
     def _do_shortcut(self) -> None:
         if self.config.get("make_shortcut", False):
-            self.on_line("shortcut creation will be implemented in GUI milestone")
+            self.on_line(SHORTCUT_DEFERRED_MESSAGE)

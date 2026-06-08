@@ -46,7 +46,7 @@ def test_select_page_warns_for_non_ascii_workspace(qtbot):
     page.workspace_edit.setText(r"C:\Users\用户\workspace")
     page.validate_paths()
 
-    assert "non-ASCII" in page.path_warning_label.text()
+    assert "中文" in page.path_warning_label.text()
     assert not page.start_button.isEnabled()
 
 
@@ -58,7 +58,7 @@ def test_install_page_tracks_steps_and_log(qtbot):
     page.append_log("hello")
     page.set_finished(True, "")
 
-    assert page.step_labels["detect"].text().endswith("running")
+    assert page.step_labels["detect"].text().endswith("运行中")
     assert "hello" in page.log_view.toPlainText()
     assert page.try_button.isEnabled()
 
@@ -67,5 +67,5 @@ def test_install_page_exposes_uninstall_button(qtbot):
     page = InstallPage()
     qtbot.addWidget(page)
 
-    assert page.uninstall_button.text() == "Uninstall environment"
+    assert page.uninstall_button.text() == "卸载环境"
     assert not page.uninstall_button.isEnabled()

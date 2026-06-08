@@ -4,12 +4,12 @@ from app.ui.widgets.status_card import StatusCard
 
 
 def test_status_card_updates_title_value_and_detail(qtbot):
-    card = StatusCard("GPU", "Detecting", "Waiting")
+    card = StatusCard("显卡", "检测中", "等待检测")
     qtbot.addWidget(card)
 
     card.set_status("RTX 4070", "CUDA 12.4")
 
-    assert card.title_label.text() == "GPU"
+    assert card.title_label.text() == "显卡"
     assert card.value_label.text() == "RTX 4070"
     assert "CUDA 12.4" in card.detail_label.text()
 

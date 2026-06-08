@@ -3,6 +3,8 @@ from __future__ import annotations
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QWidget
 
+from app.ui import text
+
 
 class ModelCard(QWidget):
     selection_changed = pyqtSignal()
@@ -21,7 +23,7 @@ class ModelCard(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 8, 10, 8)
         layout.addWidget(self.checkbox, 1)
-        layout.addWidget(QLabel("Scale"))
+        layout.addWidget(QLabel(text.LABEL_SCALE))
         layout.addWidget(self.scale_combo)
         layout.addWidget(self.size_label)
 
@@ -35,4 +37,3 @@ class ModelCard(QWidget):
         if scale in {"-tiny", "-spp"}:
             return f"{self.model_id}{scale}.pt"
         return f"{self.model_id}{scale}{self.suffix}.pt"
-

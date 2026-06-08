@@ -21,9 +21,9 @@ def test_main_window_has_three_pages(qtbot, monkeypatch):
     qtbot.addWidget(window)
 
     assert window.tabs.count() == 3
-    assert window.tabs.tabText(0) == "Environment"
-    assert window.tabs.tabText(1) == "Models"
-    assert window.tabs.tabText(2) == "Install"
+    assert window.tabs.tabText(0) == "环境检测"
+    assert window.tabs.tabText(1) == "模型选择"
+    assert window.tabs.tabText(2) == "安装进度"
 
 
 def test_main_window_detect_next_moves_to_models(qtbot, monkeypatch):
@@ -53,7 +53,7 @@ def test_main_window_preview_action_logs_result(qtbot, monkeypatch):
     window.run_preview()
 
     assert calls
-    assert "Preview succeeded" in window.install_page.log_view.toPlainText()
+    assert "预览成功" in window.install_page.log_view.toPlainText()
 
 
 def test_main_window_uninstall_action_removes_env(qtbot, monkeypatch):
@@ -67,4 +67,4 @@ def test_main_window_uninstall_action_removes_env(qtbot, monkeypatch):
     window.uninstall_environment()
 
     assert calls == [("conda.exe", "demo")]
-    assert "Environment removed" in window.install_page.log_view.toPlainText()
+    assert "环境已卸载" in window.install_page.log_view.toPlainText()

@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 
 from app.ui.widgets.model_card import ModelCard
 from app.core.validation import install_path_warning
+from app.ui import text
 from app.utils.paths import resource_path
 
 
@@ -37,19 +38,19 @@ class SelectPage(QWidget):
         self.path_warning_label = QLineEdit("")
         self.path_warning_label.setObjectName("pathWarningLabel")
         self.path_warning_label.setReadOnly(True)
-        self.jupyter_check = QCheckBox("Install Jupyter")
-        self.shortcut_check = QCheckBox("Create desktop shortcut")
-        self.start_button = QPushButton("Start")
+        self.jupyter_check = QCheckBox(text.LABEL_INSTALL_JUPYTER)
+        self.shortcut_check = QCheckBox(text.LABEL_CREATE_SHORTCUT)
+        self.start_button = QPushButton(text.BUTTON_START)
         self.start_button.setObjectName("startInstallButton")
-        self.total_label = QLineEdit("0 selected")
+        self.total_label = QLineEdit(text.SELECTED_COUNT.format(count=0))
         self.total_label.setReadOnly(True)
 
         self._load_models(data_path)
 
         form = QFormLayout()
-        form.addRow("Environment", self.env_name_edit)
-        form.addRow("Workspace", self.workspace_edit)
-        form.addRow("Warning", self.path_warning_label)
+        form.addRow(text.LABEL_ENVIRONMENT, self.env_name_edit)
+        form.addRow(text.LABEL_WORKSPACE, self.workspace_edit)
+        form.addRow(text.LABEL_WARNING, self.path_warning_label)
         form.addRow("", self.jupyter_check)
         form.addRow("", self.shortcut_check)
 
@@ -94,7 +95,7 @@ class SelectPage(QWidget):
         layout.addWidget(card)
 
     def _update_total(self) -> None:
-        self.total_label.setText(f"{len(self.selected_weights())} selected")
+        self.total_label.setText(text.SELECTED_COUNT.format(count=len(self.selected_weights())))
 
     def selected_weights(self) -> list[str]:
         return [weight for card in self.model_cards if (weight := card.selected_weight())]

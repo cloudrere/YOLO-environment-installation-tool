@@ -3,6 +3,7 @@ from __future__ import annotations
 from PyQt6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.core.pipeline import Pipeline
+from app.ui import text
 from app.ui.widgets.log_view import LogView
 
 
@@ -12,15 +13,15 @@ class InstallPage(QWidget):
         self.setObjectName("installPage")
         self.step_labels: dict[str, QLabel] = {}
         self.log_view = LogView()
-        self.cancel_button = QPushButton("Cancel")
-        self.try_button = QPushButton("Try")
+        self.cancel_button = QPushButton(text.BUTTON_CANCEL)
+        self.try_button = QPushButton(text.BUTTON_TRY)
         self.try_button.setEnabled(False)
-        self.uninstall_button = QPushButton("Uninstall environment")
+        self.uninstall_button = QPushButton(text.BUTTON_UNINSTALL)
         self.uninstall_button.setEnabled(False)
 
         layout = QVBoxLayout(self)
         for step in Pipeline.STEPS:
-            label = QLabel(f"{step}: pending")
+            label = QLabel(f"{text.STEP_NAMES.get(step, step)}：{text.STEP_STATUS['pending']}")
             label.setObjectName(f"step_{step}")
             self.step_labels[step] = label
             layout.addWidget(label)
@@ -31,7 +32,7 @@ class InstallPage(QWidget):
 
     def set_step(self, step: str, status: str) -> None:
         if step in self.step_labels:
-            self.step_labels[step].setText(f"{step}: {status}")
+            self.step_labels[step].setText(f"{text.STEP_NAMES.get(step, step)}：{text.STEP_STATUS.get(status, status)}")
 
     def append_log(self, line: str) -> None:
         self.log_view.append_line(line)
