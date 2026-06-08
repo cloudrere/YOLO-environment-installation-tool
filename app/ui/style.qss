@@ -28,8 +28,56 @@ QPushButton:disabled {
   background: #eef1f5;
 }
 
+QLabel {
+  background: transparent;
+}
+
 #selectPage {
-  background: #f4f6f8;
+  background: #eef2f7;
+}
+
+#selectSidePanel {
+  min-width: 250px;
+  max-width: 290px;
+  border-radius: 8px;
+  background: #15324a;
+}
+
+#selectSideTitle {
+  color: #ffffff;
+  font-size: 23px;
+  font-weight: 700;
+  background: transparent;
+}
+
+#selectSideDescription {
+  color: #dbeafe;
+  font-size: 14px;
+  line-height: 1.35;
+  background: transparent;
+}
+
+#selectSideSteps {
+  padding: 16px 0;
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.7;
+  background: transparent;
+}
+
+#selectSideTip {
+  padding: 8px 10px;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  color: #eff6ff;
+  background: rgba(147, 197, 253, 0.16);
+}
+
+#selectPanelTitle {
+  color: #101828;
+  font-size: 20px;
+  font-weight: 700;
+  background: transparent;
 }
 
 #selectTitleLabel {
@@ -41,6 +89,7 @@ QPushButton:disabled {
 #selectSummaryLabel {
   color: #475467;
   font-size: 14px;
+  background: transparent;
 }
 
 #environmentHintLabel {
@@ -83,6 +132,11 @@ QPushButton:disabled {
 
 #browseWorkspaceButton {
   min-width: 82px;
+}
+
+#weightStatusLine {
+  color: #475467;
+  background: #f8fafc;
 }
 
 #statusCard {

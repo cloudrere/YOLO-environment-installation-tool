@@ -51,6 +51,20 @@ def test_select_page_defaults_and_builds_config(qtbot, tmp_path):
     assert config["workspace"] == str(tmp_path)
 
 
+def test_select_page_uses_split_install_layout(qtbot):
+    page = SelectPage()
+    qtbot.addWidget(page)
+
+    assert page.side_panel.objectName() == "selectSidePanel"
+    assert page.side_title_label.text() == "YOLO 环境工具"
+    assert "专注安装可用环境" in page.side_description_label.text()
+    assert "检测 Conda 与显卡" in page.side_steps_label.text()
+    assert "创建独立 YOLO 环境" in page.side_steps_label.text()
+    assert page.install_config_panel.objectName() == "installConfigPanel"
+    assert page.panel_title_label.text() == "安装目录与环境参数"
+    assert page.total_label.text() == "模型权重：不下载"
+
+
 def test_select_page_warns_for_non_ascii_workspace(qtbot):
     page = SelectPage()
     qtbot.addWidget(page)
