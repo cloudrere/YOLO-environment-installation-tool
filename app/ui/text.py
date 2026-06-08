@@ -17,7 +17,7 @@ BUTTON_DETECT = "开始检测"
 BUTTON_NEXT = "下一步"
 BUTTON_START = "开始安装"
 BUTTON_CANCEL = "取消"
-BUTTON_TRY = "试一下"
+BUTTON_TRY = "运行自检"
 BUTTON_UNINSTALL = "卸载环境"
 
 LABEL_OS = "系统"

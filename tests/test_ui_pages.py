@@ -150,6 +150,8 @@ def test_install_page_tracks_steps_and_log(qtbot):
     page = InstallPage()
     qtbot.addWidget(page)
 
+    assert page.try_button.text() == "运行自检"
+
     page.set_step("detect", "running")
     page.append_log("hello")
     page.set_finished(True, "")
